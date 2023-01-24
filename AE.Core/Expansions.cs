@@ -308,7 +308,7 @@ namespace AE.Core
         /// <returns></returns>
         public static string Serialize(this object obj)
         {
-            var serializer = new AWSerializer();
+            var serializer = new AESerializer();
             return serializer.Serialize(obj);
         }
 
@@ -320,7 +320,7 @@ namespace AE.Core
         /// <returns></returns>
         public static T Deserialize<T>(this string data) where T : class
         {
-            var serializer = new AWSerializer();
+            var serializer = new AESerializer();
             return serializer.Deserialize<T>(data);
         }
 

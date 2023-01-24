@@ -5,7 +5,7 @@ namespace AE.Core.Serializer
     /// <summary>
     /// Serializer
     /// </summary>
-    public partial class AWSerializer : IDisposable
+    public partial class AESerializer : IDisposable
     {
         private const char FirstST = '~';
         private const string StringT = "~[";

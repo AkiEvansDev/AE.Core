@@ -6,7 +6,7 @@ using System.Text;
 
 namespace AE.Core.Serializer
 {
-    public partial class AWSerializer : IDisposable
+    public partial class AESerializer : IDisposable
     {
         private int Id { get; set; }
         private StringBuilder Builder { get; set; }
@@ -44,7 +44,7 @@ namespace AE.Core.Serializer
         {
             var type = obj?.GetType();
 
-            if (type?.GetCustomAttribute<AWSerializableAttribute>() != null)
+            if (type?.GetCustomAttribute<AESerializableAttribute>() != null)
             {
                 if (obj is IReference reference)
                 {
@@ -56,11 +56,11 @@ namespace AE.Core.Serializer
 
                 foreach (var property in type.GetProperties())
                 {
-                    if (property.SetMethod == null || property.GetCustomAttribute<AWIgnoreAttribute>() != null)
+                    if (property.SetMethod == null || property.GetCustomAttribute<AEIgnoreAttribute>() != null)
                         continue;
 
                     var value = property.GetValue(obj);
-                    isReference = property.GetCustomAttribute<AWReferenceAttribute>() != null;
+                    isReference = property.GetCustomAttribute<AEReferenceAttribute>() != null;
 
                     if (value is IDictionary dictionary)
                     {
@@ -95,13 +95,13 @@ namespace AE.Core.Serializer
         {
             var type = obj?.GetType();
 
-            if (type?.GetCustomAttribute<AWSerializableAttribute>() != null)
+            if (type?.GetCustomAttribute<AESerializableAttribute>() != null)
             {
                 Builder.Append($"({GetTypeToSave(type)})");
 
                 foreach (var property in type.GetProperties())
                 {
-                    if (property.SetMethod == null || property.GetCustomAttribute<AWIgnoreAttribute>() != null)
+                    if (property.SetMethod == null || property.GetCustomAttribute<AEIgnoreAttribute>() != null)
                         continue;
 
                     var value = property.GetValue(obj);
@@ -157,7 +157,7 @@ namespace AE.Core.Serializer
                     Builder.Append(">");
                 }
             }
-            else if (valueProperty?.GetCustomAttribute<AWReferenceAttribute>() != null && value is IReference reference)
+            else if (valueProperty?.GetCustomAttribute<AEReferenceAttribute>() != null && value is IReference reference)
                 Builder.Append($"({GetTypeToSave(reference)})<[{nameof(reference.ReferenceId)}]=({GetTypeToSave(reference.ReferenceId)}){reference.ReferenceId}>");
             else
                 SerializeObj(value);

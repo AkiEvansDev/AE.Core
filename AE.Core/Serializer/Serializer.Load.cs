@@ -9,7 +9,7 @@ using System.Reflection;
 
 namespace AE.Core.Serializer
 {
-    public partial class AWSerializer
+    public partial class AESerializer
     {
         private List<IReference> Sources { get; set; }
 
@@ -66,18 +66,18 @@ namespace AE.Core.Serializer
         {
             var type = obj?.GetType();
 
-            if (type?.GetCustomAttribute<AWSerializableAttribute>() != null)
+            if (type?.GetCustomAttribute<AESerializableAttribute>() != null)
             {
                 if (obj is IReference reference)
                     Sources.Add(reference);
 
                 foreach (var property in type.GetProperties())
                 {
-                    if (property.SetMethod == null || property.GetCustomAttribute<AWIgnoreAttribute>() != null)
+                    if (property.SetMethod == null || property.GetCustomAttribute<AEIgnoreAttribute>() != null)
                         continue;
 
                     var value = property.GetValue(obj);
-                    if (property.GetCustomAttribute<AWReferenceAttribute>() != null)
+                    if (property.GetCustomAttribute<AEReferenceAttribute>() != null)
                         continue;
 
                     if (value is IDictionary dictionary)
@@ -114,15 +114,15 @@ namespace AE.Core.Serializer
         {
             var type = obj?.GetType();
 
-            if (type?.GetCustomAttribute<AWSerializableAttribute>() != null)
+            if (type?.GetCustomAttribute<AESerializableAttribute>() != null)
             {
                 foreach (var property in type.GetProperties())
                 {
-                    if (property.SetMethod == null || property.GetCustomAttribute<AWIgnoreAttribute>() != null)
+                    if (property.SetMethod == null || property.GetCustomAttribute<AEIgnoreAttribute>() != null)
                         continue;
 
                     var value = property.GetValue(obj);
-                    var isReference = property.GetCustomAttribute<AWReferenceAttribute>() != null;
+                    var isReference = property.GetCustomAttribute<AEReferenceAttribute>() != null;
 
                     if (value is string)
                         continue;
@@ -236,7 +236,7 @@ namespace AE.Core.Serializer
         {
             var type = obj?.GetType();
 
-            if (type?.GetCustomAttribute<AWSerializableAttribute>() != null)
+            if (type?.GetCustomAttribute<AESerializableAttribute>() != null)
             {
                 foreach (var param in Parse(data))
                 {
