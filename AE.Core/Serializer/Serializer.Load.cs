@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 
@@ -358,7 +359,15 @@ namespace AE.Core.Serializer
             }
 
             if (type == typeof(double))
-                return double.Parse(data.Replace(',', '.'));
+            {
+                var format = new NumberFormatInfo
+                {
+                    NumberGroupSeparator = ".",
+                    NumberDecimalSeparator = ".",
+                };
+
+                return double.Parse(data.Replace(',', '.'), format);
+            }
 
             if (type.IsEnum)
                 return Enum.Parse(value.GetType(), data);
