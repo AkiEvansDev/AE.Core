@@ -357,6 +357,9 @@ namespace AE.Core.Serializer
                 }
             }
 
+            if (type == typeof(double))
+                return double.Parse(data.Replace(',', '.'));
+
             if (type.IsEnum)
                 return Enum.Parse(value.GetType(), data);
 
