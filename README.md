@@ -113,7 +113,7 @@ public class TestReference
     public Reference F1 { get; set; } = new Reference();
 
     // Reference to source will be saved after save and load
-    [AWReference]
+    [AEReference]
     public List<Reference> References { get; set; } = new List<Reference>();
 
     public TestReference()
