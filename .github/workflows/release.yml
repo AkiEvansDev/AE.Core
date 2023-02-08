@@ -19,6 +19,8 @@ jobs:
       run: dotnet test -c Release --no-build
     - name: Pack nugets
       run: dotnet pack -c Release --no-build --output .
+    - name: Add github source
+      run: dotnet nuget add source --username AkiEvansDev --password ${{ secrets.TOKEN_GITHUB }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/AkiEvansDev/index.json"
     - name: Push to Git
       run: dotnet nuget push "*.nupkg" --api-key ${{secrets.TOKEN_GITHUB}} --source "github"
     - name: Push to NuGet
