@@ -157,6 +157,17 @@ namespace AE.Core
         }
 
         /// <summary>
+        /// Equals string with StringComparison.OrdinalIgnoreCase
+        /// </summary>
+        /// <param name="value1"></param>
+        /// <param name="value2"></param>
+        /// <returns></returns>
+        public static bool EqualsIgnoreCase(this string value1, string value2)
+        {
+            return string.Equals(value1, value2, StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
         /// Get type by string name
         /// </summary>
         /// <param name="value"></param>

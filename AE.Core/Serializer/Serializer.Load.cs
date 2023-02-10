@@ -12,6 +12,12 @@ namespace AE.Core.Serializer
 {
     public partial class AESerializer
     {
+        private readonly static NumberFormatInfo NumberFormat = new NumberFormatInfo
+        {
+            NumberGroupSeparator = ".",
+            NumberDecimalSeparator = ".",
+        };
+
         private List<IReference> Sources { get; set; }
 
         /// <summary>
@@ -358,16 +364,14 @@ namespace AE.Core.Serializer
                 }
             }
 
-            if (type == typeof(double))
-            {
-                var format = new NumberFormatInfo
-                {
-                    NumberGroupSeparator = ".",
-                    NumberDecimalSeparator = ".",
-                };
+            if (type == typeof(float))
+                return float.Parse(data.Replace(',', '.'), NumberFormat);
 
-                return double.Parse(data.Replace(',', '.'), format);
-            }
+            if (type == typeof(double))
+                return double.Parse(data.Replace(',', '.'), NumberFormat);
+
+            if (type == typeof(decimal))
+                return decimal.Parse(data.Replace(',', '.'), NumberFormat);
 
             if (type.IsEnum)
                 return Enum.Parse(value.GetType(), data);
