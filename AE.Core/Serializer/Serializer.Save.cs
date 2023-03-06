@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
 using System.Text;
 
@@ -111,6 +112,8 @@ namespace AE.Core.Serializer
                     Builder.Append(">");
                 }
             }
+            else if (type == typeof(DateTime) && obj is DateTime dateTime)
+                Builder.Append($"({GetTypeToSave(type)}){dateTime.ToString(DATETIME_FORMAT, CultureInfo.InvariantCulture)}");
             else if (type.IsPrimitive || type.IsEnum || (type.IsValueType && type.IsSerializable))
                 Builder.Append($"({GetTypeToSave(type)}){obj}");
         }
@@ -122,7 +125,7 @@ namespace AE.Core.Serializer
 
             if (value is string str)
             {
-                Builder.Append($"{StringT}{str.Length}]){str}");
+                Builder.Append($"{STRING_T}{str.Length}]){str}");
                 return;
             }
 

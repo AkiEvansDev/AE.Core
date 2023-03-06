@@ -7,8 +7,10 @@ namespace AE.Core.Serializer
     /// </summary>
     public partial class AESerializer : IDisposable
     {
-        private const char FirstST = '~';
-        private const string StringT = "~[";
+        private const string DATETIME_FORMAT = "MM.dd.yyyy HH:mm:ss.f";
+
+        private const char FIRST_ST = '~';
+        private const string STRING_T = "~[";
 
         private List<string> TypeTabel { get; set; }
 

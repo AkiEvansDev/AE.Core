@@ -275,9 +275,9 @@ namespace AE.Core.Serializer
 
             Type type = null;
 
-            if (data.StartsWith(StringT))
+            if (data.StartsWith(STRING_T))
             {
-                data = data.Remove(0, StringT.Length);
+                data = data.Remove(0, STRING_T.Length);
 
                 var lenString = data.Substring(0, data.IndexOf(']'));
                 var len = int.Parse(lenString);
@@ -313,12 +313,12 @@ namespace AE.Core.Serializer
                     var item = param.Value;
                     string k, v;
 
-                    if (item.StartsWith(StringT))
+                    if (item.StartsWith(STRING_T))
                     {
-                        var lenString = item.Substring(StringT.Length, item.IndexOf(']') - StringT.Length);
+                        var lenString = item.Substring(STRING_T.Length, item.IndexOf(']') - STRING_T.Length);
                         var len = lenString.Int();
 
-                        k = item.Substring(0, len + $"{StringT}{len}])".Length);
+                        k = item.Substring(0, len + $"{STRING_T}{len}])".Length);
                         v = item.Substring(k.Length + 1);
                     }
                     else
@@ -373,6 +373,9 @@ namespace AE.Core.Serializer
             if (type == typeof(decimal))
                 return decimal.Parse(data.Replace(',', '.'), NumberFormat);
 
+            if (type == typeof(DateTime))
+                return DateTime.ParseExact(data, DATETIME_FORMAT, CultureInfo.InvariantCulture);
+
             if (type.IsEnum)
                 return Enum.Parse(value.GetType(), data);
 
@@ -408,9 +411,9 @@ namespace AE.Core.Serializer
                 {
                     var c = data[i];
 
-                    if (c == FirstST && data.Substring(i).StartsWith(StringT))
+                    if (c == FIRST_ST && data.Substring(i).StartsWith(STRING_T))
                     {
-                        i += StringT.Length;
+                        i += STRING_T.Length;
 
                         var str = data.Substring(i);
                         var lenString = str.Substring(0, str.IndexOf(']'));
