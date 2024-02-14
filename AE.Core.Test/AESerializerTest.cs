@@ -36,12 +36,18 @@ public class AESerializerTest
 		public TestEnum Enum { get; set; }
 		public int[] Ints { get; set; }
 		public List<float> Floats { get; set; }
+		public ITestClass TestInterface { get; set; }
 		public SubTestSerializerClass SubTestClass { get; set; }
 		public SubTestSerializerStruct SubTestStruct { get; set; }
 	}
 
+	public interface ITestClass
+	{
+		string Text { get; set; }
+	}
+
 	[AESerializable]
-	public class SubTestSerializerClass
+	public class SubTestSerializerClass : ITestClass
 	{
 		public string Text { get; set; }
 	}
@@ -70,6 +76,10 @@ public class AESerializerTest
 			Enum = TestEnum.V3,
 			Ints = [1, 2],
 			Floats = [2.2f, 3.3f],
+			TestInterface = new SubTestSerializerClass
+			{
+				Text = "~[Test&^$(']",
+			},
 			SubTestClass = new SubTestSerializerClass
 			{
 				Text = "~[Test&^$(']",
@@ -117,6 +127,9 @@ public class AESerializerTest
 			Assert.Fail();
 
 		if (obj2.Floats[0] != 2.2f || obj2.Floats[1] != 3.3f)
+			Assert.Fail();
+
+		if (obj2.TestInterface == null || obj2.TestInterface.Text != "~[Test&^$(']")
 			Assert.Fail();
 
 		if (obj2.SubTestClass == null || obj2.SubTestClass.Text != "~[Test&^$(']")
