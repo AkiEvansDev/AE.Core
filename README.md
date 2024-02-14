@@ -54,11 +54,18 @@ public class TestSerializer
 	public TestEnum Enum { get; set; }
 	public int[] Ints { get; set; }
 	public List<float> Floats { get; set; }
-	public SubTestSerializer SubTest { get; set; }
+	public SubTestSerializerClass SubTestClass { get; set; }
+	public SubTestSerializerStruct SubTestStruct { get; set; }
 }
 
 [AESerializable]
-public class SubTestSerializer
+public class SubTestSerializerClass
+{
+	public string Text { get; set; }
+}
+
+[AESerializable]
+public struct SubTestSerializerStruct
 {
 	public string Text { get; set; }
 }
@@ -78,11 +85,16 @@ var obj = new TestSerializer
 	Enum = TestEnum.V3,
 	Ints = [1, 2],
 	Floats = [2.2f, 3.3f],
-	SubTest = new SubTestSerializer
+	SubTestClass = new SubTestSerializerClass
+	{
+		Text = "~[Test&^$(']",
+	},
+	SubTestStruct = new SubTestSerializerStruct
 	{
 		Text = "~[Test&^$(']",
 	},
 };
+
 string data = null;
 
 using (var serializer = new AESerializer())

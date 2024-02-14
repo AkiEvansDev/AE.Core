@@ -49,8 +49,11 @@ namespace AE.Core.Serializer
 
 			if (type?.GetCustomAttribute<AESerializableAttribute>() != null)
 			{
-                if (!SetReferenceObject(obj))
-                    return;
+				if (!type.IsValueType)
+				{
+					if (!SetReferenceObject(obj))
+						return;
+				}
 
 				foreach (var property in type.GetProperties())
 				{
