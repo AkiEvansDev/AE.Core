@@ -12,14 +12,6 @@ namespace AE.Core.Serializer
 {
     public partial class AESerializer
     {
-        private readonly static NumberFormatInfo NumberFormat = new NumberFormatInfo
-        {
-            NumberGroupSeparator = ".",
-            NumberDecimalSeparator = ".",
-        };
-
-        private List<IReference> Sources { get; set; }
-
         /// <summary>
         /// Deserialize object from string
         /// </summary>
@@ -28,249 +20,136 @@ namespace AE.Core.Serializer
         /// <returns></returns>
         public T Deserialize<T>(string data)
         {
+            var result = Deserialize(data);
+
+            if (result == null)
+                return (T)typeof(T).Object();
+
+			return (T)result;
+		}
+
+		/// <summary>
+		/// Deserialize object from string
+		/// </summary>
+		/// <param name="data"></param>
+		/// <returns></returns>
+		public object Deserialize(string data)
+		{
+			Init();
+
+			if (data.Length < 2)
+				throw new Exception("Incorect data");
+
+			var options = data.Substring(0, 2);
+			data = data.Substring(2);
+
+			if (options.Contains("t"))
+				data = BeforeDeserialize(data);
+
+			if (options.Contains("r"))
+			{
+				var index = data.IndexOf("&");
+				if (index < data.Length && data.Substring(0, index).TryInt(out int len))
+				{
+					var start = len.ToString().Length + 1;
+					var referencesData = data.Substring(start, len - 1);
+
+					data = data.Substring(referencesData.Length + start);
+
+					var type = GetSaveType(data.Substring(1, data.IndexOf(')') - 1));
+					var obj = type.Object();
+
+                    SetReferenceObject(0, obj);
+
+					if (!referencesData.IsNull())
+					{
+						while (referencesData.Length > 0)
+						{
+							index = referencesData.IndexOf("&");
+							if (index < referencesData.Length && referencesData.Substring(0, index).TryInt(out len))
+							{
+								start = len.ToString().Length + 1;
+								var refData = referencesData.Substring(start, len - 1);
+
+								referencesData = referencesData.Substring(refData.Length + start);
+
+								index = refData.IndexOf("&");
+								if (index < refData.Length && refData.Substring(0, index).TryInt(out int id))
+								{
+									refData = refData.Substring(index + 1);
+									DeserializeObject(id, refData);
+								}
+							}
+						}
+					}
+
+                    return DeserializeObject(data, obj);
+                }
+			}
+
+            return DeserializeObject(-1, data);
+		}
+
+		private string BeforeDeserialize(string data)
+		{
+			var index = data.IndexOf("&");
+			if (index < data.Length && data.Substring(0, index).TryInt(out int len))
+			{
+				var start = len.ToString().Length + 1;
+				var typesData = data.Substring(start, len - 1);
+
+				data = data.Substring(typesData.Length + start);
+
+				if (!typesData.IsNull())
+				{
+					foreach (var type in typesData.Split('&'))
+						TypeTable.Add(type);
+				}
+			}
+
+            return data;
+        }
+
+		private object DeserializeObject(int id, string data)
+		{
+			if (data.IsNull())
+				return null;
+
+			var type = GetSaveType(data.Substring(1, data.IndexOf(')') - 1));
+            var obj = type.Object();
+
+            if (id >= 0)
+			    SetReferenceObject(id, obj);
+
+			return DeserializeObject(data, obj);
+		}
+
+		private object DeserializeObject(string data, object obj)
+		{
+			if (data.IsNull())
+				return null;
+
+            var type = obj.GetType();
+
+			if (type.GetCustomAttribute<AESerializableAttribute>() != null)
+			{
+				foreach (var param in Parse(data))
+				{
+					var property = type.GetProperty(param.Key);
+
+					if (property != null)
+						property.SetValue(obj, DeserializeValue(param.Value));
+				}
+
+				return obj;
+			}
+
+			return Convert.ChangeType(data, type);
+		}
+
+		private object DeserializeValue(string data)
+        {
             if (data.IsNull())
-                return typeof(T).Object<T>();
-
-            try
-            {
-                var index = data.IndexOf("&");
-                if (index < data.Length && data.Substring(0, index).TryInt(out int len))
-                {
-                    var start = len.ToString().Length + 1;
-                    var types = data.Substring(start, len - 1);
-
-                    data = data.Substring(types.Length + start);
-
-                    if (!types.IsNull())
-                    {
-                        TypeTabel = new List<string>();
-
-                        foreach (var t in types.Split('&'))
-                            TypeTabel.Add(t);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                AELogger.DefaultLogger?.Log(ex);
-            }
-
-            T result = (T)DeserializeObject(typeof(T).Object(), data);
-            AfterDeserialize(result);
-
-            return result;
-        }
-
-        private void AfterDeserialize(object obj)
-        {
-            Sources = new List<IReference>();
-
-            GetSource(obj);
-            SetReference(obj);
-        }
-
-        private void GetSource(object obj)
-        {
-            var type = obj?.GetType();
-
-            if (type?.GetCustomAttribute<AESerializableAttribute>() != null)
-            {
-                if (obj is IReference reference)
-                    Sources.Add(reference);
-
-                foreach (var property in type.GetProperties())
-                {
-                    if (property.SetMethod == null || property.GetCustomAttribute<AEIgnoreAttribute>() != null)
-                        continue;
-
-                    var value = property.GetValue(obj);
-                    if (property.GetCustomAttribute<AEReferenceAttribute>() != null)
-                        continue;
-
-                    if (value is IDictionary dictionary)
-                    {
-                        var keys = dictionary.Keys.GetEnumerator();
-                        var values = dictionary.Values.GetEnumerator();
-
-                        for (var i = 0; i < dictionary.Count; ++i)
-                        {
-                            keys.MoveNext();
-                            values.MoveNext();
-
-                            GetSource(keys.Current);
-                            GetSource(values.Current);
-
-                        }
-
-                        continue;
-                    }
-                    else if (!(value is string) && value is IEnumerable enumerable)
-                    {
-                        foreach (var item in enumerable)
-                            GetSource(item);
-
-                        continue;
-                    }
-
-                    GetSource(value);
-                }
-            }
-        }
-
-        private void SetReference(object obj)
-        {
-            var type = obj?.GetType();
-
-            if (type?.GetCustomAttribute<AESerializableAttribute>() != null)
-            {
-                foreach (var property in type.GetProperties())
-                {
-                    if (property.SetMethod == null || property.GetCustomAttribute<AEIgnoreAttribute>() != null)
-                        continue;
-
-                    var value = property.GetValue(obj);
-                    var isReference = property.GetCustomAttribute<AEReferenceAttribute>() != null;
-
-                    if (value is string)
-                        continue;
-
-                    var valueType = value?.GetType();
-
-                    if (value is IDictionary dictionary)
-                    {
-                        var rDictionary = valueType.Object<IDictionary>();
-
-                        var keys = dictionary.Keys.GetEnumerator();
-                        var values = dictionary.Values.GetEnumerator();
-
-                        for (var i = 0; i < dictionary.Count; ++i)
-                        {
-                            keys.MoveNext();
-                            values.MoveNext();
-
-                            var key = keys.Current;
-                            var item = values.Current;
-
-                            if (isReference)
-                            {
-                                var sourceKey = key;
-                                var sourceItem = item;
-
-                                if (sourceKey is IReference referenceKey)
-                                    sourceKey = Sources.First(s => s.ReferenceId == referenceKey.ReferenceId);
-                                if (sourceItem is IReference referenceItem)
-                                    sourceItem = Sources.First(s => s.ReferenceId == referenceItem.ReferenceId);
-
-                                rDictionary.Add(sourceKey, sourceItem);
-
-                                continue;
-                            }
-
-                            SetReference(key);
-                            SetReference(item);
-
-                            rDictionary.Add(key, item);
-                        }
-
-                        property.SetValue(obj, rDictionary);
-                    }
-                    else if (value is IEnumerable enumerable)
-                    {
-                        var itemType = valueType.IsArray ? enumerable.GetType().GetElementType() : enumerable.GetType().GenericTypeArguments[0];
-                        var items = new List<object>();
-
-                        foreach (var item in enumerable)
-                        {
-                            if (isReference)
-                            {
-                                var sourceItem = item;
-
-                                if (sourceItem is IReference referenceItem)
-                                    sourceItem = Sources.First(s => s.ReferenceId == referenceItem.ReferenceId);
-
-                                items.Add(sourceItem);
-
-                                continue;
-                            }
-
-                            SetReference(item);
-
-                            items.Add(item);
-                        }
-
-                        var enumerableType = typeof(Enumerable);
-                        var castMethod = enumerableType.GetMethod(nameof(Enumerable.Cast)).MakeGenericMethod(itemType);
-
-                        var castedItems = castMethod.Invoke(null, new[] { items });
-
-                        if (valueType.IsArray)
-                        {
-                            var toArrayMethod = enumerableType.GetMethod(nameof(Enumerable.ToArray)).MakeGenericMethod(itemType);
-                            castedItems = toArrayMethod.Invoke(null, new[] { castedItems });
-                        }
-                        else
-                        {
-                            var toListMethod = enumerableType.GetMethod(nameof(Enumerable.ToList)).MakeGenericMethod(itemType);
-                            castedItems = toListMethod.Invoke(null, new[] { castedItems });
-
-                            var observType = typeof(ObservableCollection<>).MakeGenericType(itemType);
-
-                            if (valueType == observType)
-                                castedItems = observType.Object(new object[] { castedItems });
-                        }
-
-                        property.SetValue(obj, castedItems);
-
-                        continue;
-                    }
-
-                    if (isReference && value is IReference referenceValue)
-                    {
-                        var sourceValue = Sources.FirstOrDefault(s => s.ReferenceId == referenceValue.ReferenceId && s.GetType() == referenceValue.GetType());
-
-                        if (sourceValue != null)
-                            property.SetValue(obj, sourceValue);
-
-                        continue;
-                    }
-
-                    SetReference(value);
-                }
-            }
-        }
-
-        private object DeserializeObject(object obj, string data)
-        {
-            var type = obj?.GetType();
-
-            if (type?.GetCustomAttribute<AESerializableAttribute>() != null)
-            {
-                foreach (var param in Parse(data))
-                {
-                    var property = type.GetProperty(param.Key);
-
-                    if (property != null)
-                        property.SetValue(obj, DeserializeValue(param.Value));
-                }
-
-                return obj;
-            }
-
-            try
-            {
-                return Convert.ChangeType(data, type);
-            }
-            catch (Exception ex)
-            {
-                AELogger.DefaultLogger?.Log(ex);
-            }
-
-            return null;
-        }
-
-        private object DeserializeValue(string data)
-        {
-            if (string.IsNullOrEmpty(data))
                 return null;
 
             Type type = null;
@@ -300,6 +179,9 @@ namespace AE.Core.Serializer
 
             if (type == typeof(string))
                 return data;
+
+            if (data.StartsWith("ref"))
+                return GetReferenceObject(data.Substring(3));
 
             var value = type.Object();
 
@@ -376,16 +258,16 @@ namespace AE.Core.Serializer
             if (type == typeof(DateTime))
                 return DateTime.ParseExact(data, DATETIME_FORMAT, CultureInfo.InvariantCulture);
 
-			if (type == typeof(TimeSpan))
-				return TimeSpan.ParseExact(data, TIMESPAN_FORMAT, CultureInfo.InvariantCulture);
+            if (type == typeof(TimeSpan))
+                return TimeSpan.ParseExact(data, TIMESPAN_FORMAT, CultureInfo.InvariantCulture);
 
-			if (type.IsEnum)
+            if (type.IsEnum)
                 return Enum.Parse(value.GetType(), data);
 
             if (value is Guid)
                 return new Guid(data);
 
-            return DeserializeObject(value, data);
+            return DeserializeObject(data, value);
         }
 
         private Dictionary<string, string> Parse(string data)

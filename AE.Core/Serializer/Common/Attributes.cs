@@ -13,10 +13,4 @@ namespace AE.Core
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Property)]
     public class AEIgnoreAttribute : Attribute { }
-
-	/// <summary>
-	/// Marks property as reference (need <see cref="IReference"/>)
-	/// </summary>
-	[AttributeUsage(AttributeTargets.Property)]
-    public class AEReferenceAttribute : Attribute { }
 }

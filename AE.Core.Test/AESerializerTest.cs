@@ -112,6 +112,139 @@ public class AESerializerTest
 			Assert.Fail();
 	}
 
+	[AESerializable]
+	public class ReferenceTest
+	{
+		public string Data { get; set; }
+
+		public ReferenceTest SubData1 { get; set; }
+		public ReferenceTest SubData2 { get; set; }
+	}
+	
+	[AESerializable]
+	public class ReferenceTestArray
+	{
+		public string Data { get; set; }
+		public Dictionary<string, ReferenceTestArrayItem> Items { get; set; }
+	}
+
+	[AESerializable]
+	public class ReferenceTestArrayItem
+	{
+		public string Data { get; set; }
+		public ReferenceTestArray Parent { get; set; }
+	}
+
+	[Test]
+	public void TestReference1()
+	{
+		var r1 = new ReferenceTest
+		{
+			Data = "test1"
+		};
+		var r2 = new ReferenceTest
+		{
+			Data = "test2"
+		};
+
+		r1.SubData1 = r1;
+		r1.SubData2 = r2;
+
+		var data = serializer.Serialize(r1);
+		var res = serializer.Deserialize<ReferenceTest>(data);
+
+		res.SubData1.Data = "0";
+
+		if (res.Data != "0")
+			Assert.Fail();
+	}
+
+	[Test]
+	public void TestReference2()
+	{
+		var r1 = new ReferenceTest
+		{
+			Data = "test1"
+		};
+		var r2 = new ReferenceTest
+		{
+			Data = "test2"
+		};
+
+		r1.SubData1 = r2;
+		r1.SubData2 = r2;
+
+		var data = serializer.Serialize(r1);
+		var res = serializer.Deserialize<ReferenceTest>(data);
+
+		res.SubData2.Data = "0";
+
+		if (res.SubData1.Data != "0")
+			Assert.Fail();
+	}
+
+	[Test]
+	public void TestReference3()
+	{
+		var r1 = new ReferenceTest
+		{
+			Data = "test1"
+		};
+		var r2 = new ReferenceTest
+		{
+			Data = "test2"
+		};
+
+		r1.SubData1 = r2;
+		r1.SubData2 = r2;
+
+		var data = serializer.SerializeCopy(r1);
+		var res = serializer.Deserialize<ReferenceTest>(data);
+
+		res.SubData2.Data = "0";
+
+		if (res.SubData1.Data == "0")
+			Assert.Fail();
+	}
+
+	[Test]
+	public void TestReference4()
+	{
+		var r = new ReferenceTestArray
+		{
+			Data = "parent",
+			Items = new Dictionary<string, ReferenceTestArrayItem>(),
+		};
+
+		var r1 = new ReferenceTestArrayItem
+		{
+			Data = "r1",
+			Parent = r,
+		};
+
+		var r2 = new ReferenceTestArrayItem
+		{
+			Data = "r2",
+			Parent = r,
+		};
+
+		r.Items.Add("1", r1);
+		r.Items.Add("2", r2);
+		r.Items.Add("3", r1);
+
+		var data = serializer.Serialize(r);
+		var res = serializer.Deserialize<ReferenceTestArray>(data);
+
+		res.Data = "0";
+		res.Items["1"].Data = "0";
+
+		if (res.Items["1"].Parent.Data != "0")
+			Assert.Fail();
+
+		if (res.Items["3"].Data != "0")
+			Assert.Fail();
+	}
+
 	[TearDown]
 	public void Dispose()
 	{

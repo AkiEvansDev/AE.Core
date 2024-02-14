@@ -3,11 +3,11 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
 	  
-    <Version>3.0.2</Version>
+    <Version>3.0.3</Version>
 	<Title>AE.Core</Title>
     <Description>AE.Core</Description>
     <Authors>AkiEvans</Authors>
-    <PackageTags>AE.Core;Serializer;</PackageTags>
+    <PackageTags>AE.Core;Serializer;Logger;</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
 	<RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/AkiEvansDev/AE.Core</RepositoryUrl>

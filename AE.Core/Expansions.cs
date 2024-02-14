@@ -321,20 +321,43 @@ namespace AE.Core
         {
             var serializer = new AESerializer();
             return serializer.Serialize(obj);
-        }
+		}
 
-        /// <summary>
-        /// Deserialize string
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        public static T Deserialize<T>(this string data) where T : class
+		/// <summary>
+		/// Serialize object without reference
+		/// </summary>
+		/// <param name="obj"></param>
+		/// <returns></returns>
+		public static string SerializeCopy(this object obj)
+		{
+			var serializer = new AESerializer();
+			return serializer.SerializeCopy(obj);
+		}
+
+		/// <summary>
+		/// Deserialize string
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="data"></param>
+		/// <returns></returns>
+		public static T Deserialize<T>(this string data) where T : class
         {
             var serializer = new AESerializer();
             return serializer.Deserialize<T>(data);
         }
 
-        #endregion
-    }
+		/// <summary>
+		/// Deserialize string
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="data"></param>
+		/// <returns></returns>
+		public static object Deserialize(this string data)
+		{
+			var serializer = new AESerializer();
+			return serializer.Deserialize(data);
+		}
+
+		#endregion
+	}
 }

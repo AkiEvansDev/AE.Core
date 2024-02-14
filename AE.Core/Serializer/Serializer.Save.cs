@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -9,51 +10,135 @@ namespace AE.Core.Serializer
 {
     public partial class AESerializer : IDisposable
     {
-        private int Id { get; set; }
-        private StringBuilder Builder { get; set; }
-
-        private void BeforeSerialize(object obj)
-        {
-            Id = 1;
-            Builder = new StringBuilder();
-            TypeTabel = new List<string>();
-
-            SetId(obj, zero: true);
-            SetId(obj);
-        }
-
         /// <summary>
         /// Serialize object
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
         public string Serialize(object obj)
+		{
+			return Serialize(obj, false);
+		}
+
+		/// <summary>
+		/// Serialize object without reference
+		/// </summary>
+		/// <param name="obj"></param>
+		/// <returns></returns>
+		public string SerializeCopy(object obj)
+		{
+			return Serialize(obj, true);
+		}
+
+		private string Serialize(object obj, bool ignoreReference)
+		{
+			Init();
+
+			if (!ignoreReference)
+				BeforeSerialize(obj);
+
+			SerializeObj(obj);
+			AfterSerialize();
+
+			return Builder.ToString();
+		}
+
+		private void BeforeSerialize(object obj)
+		{
+			var type = obj?.GetType();
+
+			if (type?.GetCustomAttribute<AESerializableAttribute>() != null)
+			{
+                if (!SetReferenceObject(obj))
+                    return;
+
+				foreach (var property in type.GetProperties())
+				{
+					if (property.SetMethod == null || property.GetCustomAttribute<AEIgnoreAttribute>() != null)
+						continue;
+
+					var value = property.GetValue(obj);
+
+					if (value is IDictionary dictionary)
+					{
+						var keys = dictionary.Keys.GetEnumerator();
+						var values = dictionary.Values.GetEnumerator();
+
+						for (var i = 0; i < dictionary.Count; ++i)
+						{
+							keys.MoveNext();
+							values.MoveNext();
+
+							BeforeSerialize(keys.Current);
+							BeforeSerialize(values.Current);
+						}
+
+						continue;
+					}
+					else if (!(value is string) && value is IEnumerable enumerable)
+					{
+						foreach (var item in enumerable)
+							BeforeSerialize(item);
+
+						continue;
+					}
+
+					BeforeSerialize(value);
+				}
+			}
+		}
+
+        private void AfterSerialize()
+		{
+			var options = "";
+			var types = "";
+			var referenceBuilder = new StringBuilder();
+
+			foreach (var reference in ReferenceTable.Where(r => r.HasReference && r.Id > 0).Reverse())
+			{
+				var objBuilder = new StringBuilder();
+				SerializeObj(reference.Obj, objBuilder);
+
+				referenceBuilder.Append($"{objBuilder.Length + reference.Id.ToString().Length + 2}&{reference.Id}&");
+				referenceBuilder.Append(objBuilder);
+			}
+
+			if (referenceBuilder.Length > 0)
+			{
+				options += "r";
+
+				referenceBuilder.Insert(0, $"{referenceBuilder.Length + 1}&");
+				Builder.Insert(0, referenceBuilder);
+			}
+			else
+				options += "-";
+
+			foreach (var t in TypeTable)
+				types += $"&{t}";
+
+			if (types.Length > 0)
+			{
+				options += "t";
+
+				Builder.Insert(0, types.Length.ToString() + types);
+			}
+			else
+				options += "-";
+
+			if (Builder.Length > 0)
+				Builder.Insert(0, options);
+		}
+
+        private void SerializeObj(object obj, StringBuilder builder = null)
         {
-            BeforeSerialize(obj);
-            SerializeObj(obj);
+            if (builder == null)
+                builder = Builder;
 
-            var types = "";
-
-            foreach (var t in TypeTabel)
-                types += $"&{t}";
-
-            Builder.Insert(0, types.Length.ToString() + types);
-            return Builder.ToString();
-        }
-
-        private void SetId(object obj, bool isReference = false, bool zero = false)
-        {
-            var type = obj?.GetType();
+			var type = obj?.GetType();
 
             if (type?.GetCustomAttribute<AESerializableAttribute>() != null)
             {
-                if (obj is IReference reference)
-                {
-                    reference.ReferenceId = zero ? 0 : Id++;
-
-                    if (isReference)
-                        return;
-                }
+				builder.Append($"({SetSaveTypeId(type)})");
 
                 foreach (var property in type.GetProperties())
                 {
@@ -61,79 +146,37 @@ namespace AE.Core.Serializer
                         continue;
 
                     var value = property.GetValue(obj);
-                    isReference = property.GetCustomAttribute<AEReferenceAttribute>() != null;
 
-                    if (value is IDictionary dictionary)
-                    {
-                        var keys = dictionary.Keys.GetEnumerator();
-                        var values = dictionary.Values.GetEnumerator();
-
-                        for (var i = 0; i < dictionary.Count; ++i)
-                        {
-                            keys.MoveNext();
-                            values.MoveNext();
-
-                            SetId(keys.Current, isReference, zero);
-                            SetId(values.Current, isReference, zero);
-                        }
-
-                        continue;
-                    }
-                    else if (!(value is string) && value is IEnumerable enumerable)
-                    {
-                        foreach (var item in enumerable)
-                            SetId(item, isReference, zero);
-
-                        continue;
-                    }
-
-                    SetId(value, isReference, zero);
-                }
-            }
-        }
-
-        private void SerializeObj(object obj)
-        {
-            var type = obj?.GetType();
-
-            if (type?.GetCustomAttribute<AESerializableAttribute>() != null)
-            {
-                Builder.Append($"({GetTypeToSave(type)})");
-
-                foreach (var property in type.GetProperties())
-                {
-                    if (property.SetMethod == null || property.GetCustomAttribute<AEIgnoreAttribute>() != null)
-                        continue;
-
-                    var value = property.GetValue(obj);
-
-                    Builder.Append($"<[{property.Name}]=");
-                    SerializeValue(value, property);
-                    Builder.Append(">");
+					builder.Append($"<[{property.Name}]=");
+                    SerializeValue(value, property, builder);
+					builder.Append(">");
                 }
             }
             else if (type == typeof(DateTime) && obj is DateTime dateTime)
-                Builder.Append($"({GetTypeToSave(type)}){dateTime.ToString(DATETIME_FORMAT, CultureInfo.InvariantCulture)}");
+				builder.Append($"({SetSaveTypeId(type)}){dateTime.ToString(DATETIME_FORMAT, CultureInfo.InvariantCulture)}");
 			else if (type == typeof(TimeSpan) && obj is TimeSpan timeSpan)
-				Builder.Append($"({GetTypeToSave(type)}){timeSpan.ToString(TIMESPAN_FORMAT, CultureInfo.InvariantCulture)}");
+				builder.Append($"({SetSaveTypeId(type)}){timeSpan.ToString(TIMESPAN_FORMAT, CultureInfo.InvariantCulture)}");
 			else if (type.IsPrimitive || type.IsEnum || (type.IsValueType && type.IsSerializable))
-                Builder.Append($"({GetTypeToSave(type)}){obj}");
+				builder.Append($"({SetSaveTypeId(type)}){obj}");
         }
 
-        private void SerializeValue(object value, PropertyInfo valueProperty)
+        private void SerializeValue(object value, PropertyInfo valueProperty, StringBuilder builder = null)
         {
             if (value == null)
                 return;
 
-            if (value is string str)
+			if (builder == null)
+				builder = Builder;
+
+			if (value is string str)
             {
-                Builder.Append($"{STRING_T}{str.Length}]){str}");
+				builder.Append($"{STRING_T}{str.Length}]){str}");
                 return;
             }
 
             if (value is IDictionary dictionary)
             {
-                Builder.Append($"({GetTypeToSave(value)})");
+				builder.Append($"({SetSaveTypeId(value)})");
 
                 var keys = dictionary.Keys.GetEnumerator();
                 var values = dictionary.Values.GetEnumerator();
@@ -143,29 +186,33 @@ namespace AE.Core.Serializer
                     keys.MoveNext();
                     values.MoveNext();
 
-                    Builder.Append($"<[{index}]=");
-                    SerializeValue(keys.Current, valueProperty);
-                    Builder.Append("|");
-                    SerializeValue(values.Current, valueProperty);
-                    Builder.Append(">");
+					builder.Append($"<[{index}]=");
+                    SerializeValue(keys.Current, valueProperty, builder);
+					builder.Append("|");
+                    SerializeValue(values.Current, valueProperty, builder);
+					builder.Append(">");
                 }
             }
             else if (value is IEnumerable enumerable)
             {
-                Builder.Append($"({GetTypeToSave(value)})");
+				builder.Append($"({SetSaveTypeId(value)})");
                 var index = 0;
 
                 foreach (var item in enumerable)
                 {
-                    Builder.Append($"<[{index++}]=");
-                    SerializeValue(item, valueProperty);
-                    Builder.Append(">");
+					builder.Append($"<[{index++}]=");
+                    SerializeValue(item, valueProperty, builder);
+					builder.Append(">");
                 }
             }
-            else if (valueProperty?.GetCustomAttribute<AEReferenceAttribute>() != null && value is IReference reference)
-                Builder.Append($"({GetTypeToSave(reference)})<[{nameof(reference.ReferenceId)}]=({GetTypeToSave(reference.ReferenceId)}){reference.ReferenceId}>");
-            else
-                SerializeObj(value);
+			else
+			{
+				var id = GetReferenceObjectId(value);
+				if (id != -1)
+					builder.Append($"({SetSaveTypeId(value)})ref{id}");
+				else
+					SerializeObj(value, builder);
+			}
         }
     }
 }
