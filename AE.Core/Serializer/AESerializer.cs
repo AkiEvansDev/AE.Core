@@ -8,8 +8,9 @@ namespace AE.Core.Serializer
     public partial class AESerializer : IDisposable
     {
         private const string DATETIME_FORMAT = "MM.dd.yyyy HH:mm:ss.f";
+        private const string TIMESPAN_FORMAT = "c";
 
-        private const char FIRST_ST = '~';
+		private const char FIRST_ST = '~';
         private const string STRING_T = "~[";
 
         private List<string> TypeTabel { get; set; }

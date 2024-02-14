@@ -52,7 +52,7 @@ namespace AE.Core.Serializer
             }
             catch (Exception ex)
             {
-                Logger.DefaultLogger?.Log(ex);
+                AELogger.DefaultLogger?.Log(ex);
             }
 
             T result = (T)DeserializeObject(typeof(T).Object(), data);
@@ -262,7 +262,7 @@ namespace AE.Core.Serializer
             }
             catch (Exception ex)
             {
-                Logger.DefaultLogger?.Log(ex);
+                AELogger.DefaultLogger?.Log(ex);
             }
 
             return null;
@@ -376,7 +376,10 @@ namespace AE.Core.Serializer
             if (type == typeof(DateTime))
                 return DateTime.ParseExact(data, DATETIME_FORMAT, CultureInfo.InvariantCulture);
 
-            if (type.IsEnum)
+			if (type == typeof(TimeSpan))
+				return TimeSpan.ParseExact(data, TIMESPAN_FORMAT, CultureInfo.InvariantCulture);
+
+			if (type.IsEnum)
                 return Enum.Parse(value.GetType(), data);
 
             if (value is Guid)

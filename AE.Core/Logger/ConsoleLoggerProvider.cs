@@ -11,7 +11,7 @@ namespace AE.Core.Log
         /// <inheritdoc/>
         public ILogger GetLogger(string tag = null)
         {
-            return Logger.New(new List<ILoggerProvider>
+            return AELogger.New(new List<ILoggerProvider>
             {
                 this
             }, tag);

@@ -114,7 +114,9 @@ namespace AE.Core.Serializer
             }
             else if (type == typeof(DateTime) && obj is DateTime dateTime)
                 Builder.Append($"({GetTypeToSave(type)}){dateTime.ToString(DATETIME_FORMAT, CultureInfo.InvariantCulture)}");
-            else if (type.IsPrimitive || type.IsEnum || (type.IsValueType && type.IsSerializable))
+			else if (type == typeof(TimeSpan) && obj is TimeSpan timeSpan)
+				Builder.Append($"({GetTypeToSave(type)}){timeSpan.ToString(TIMESPAN_FORMAT, CultureInfo.InvariantCulture)}");
+			else if (type.IsPrimitive || type.IsEnum || (type.IsValueType && type.IsSerializable))
                 Builder.Append($"({GetTypeToSave(type)}){obj}");
         }
 

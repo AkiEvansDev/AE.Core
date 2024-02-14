@@ -7,7 +7,7 @@ namespace AE.Core.Log
     /// <summary>
     /// Implement <see cref="ILogger"/>
     /// </summary>
-    public class Logger : ILogger
+    public class AELogger : ILogger
     {
         #region Static
 
@@ -29,7 +29,7 @@ namespace AE.Core.Log
         /// <returns></returns>
         public static ILogger New(IEnumerable<ILoggerProvider> providers, string tag = null)
         {
-            return new Logger(providers, tag);
+            return new AELogger(providers, tag);
         }
 
         #endregion
@@ -44,7 +44,7 @@ namespace AE.Core.Log
         /// </summary>
         /// <param name="providers"></param>
         /// <param name="tag"></param>
-        protected Logger(IEnumerable<ILoggerProvider> providers, string tag)
+        protected AELogger(IEnumerable<ILoggerProvider> providers, string tag)
         {
             Tag = tag;
             Providers = providers;
@@ -59,12 +59,14 @@ namespace AE.Core.Log
         {
             if (ex != null)
             {
-                message = $"{(message.IsNull() ? "" : $"{message}: ")}";
+                message = $"{(message.IsNull() ? "" : $"{message}:{Environment.NewLine}")}";
+                var tab = "";
 
                 while (ex != null)
                 {
-                    message += $"{ex.Message}{Environment.NewLine}{ex.StackTrace}{Environment.NewLine}";
+                    message += $"{tab}{ex.Message.Replace("\n", $"\n{tab}")}{Environment.NewLine}{tab}{ex.StackTrace.Replace("\n", $"\n{tab}")}{Environment.NewLine}";
                     ex = ex.InnerException;
+                    tab = $"{tab}    ";
                 }
             }
 

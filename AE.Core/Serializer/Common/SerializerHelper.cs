@@ -24,7 +24,7 @@ namespace AE.Core
                 }
                 catch (Exception ex)
                 {
-                    Logger.DefaultLogger?.Log(ex, $"Assembly {refAsmName.FullName}");
+                    AELogger.DefaultLogger?.Log(ex, $"Assembly {refAsmName.FullName}");
                 }
             }
 
@@ -37,7 +37,7 @@ namespace AE.Core
                 }
                 catch (Exception ex)
                 {
-                    Logger.DefaultLogger?.Log(ex, $"File {path}");
+                    AELogger.DefaultLogger?.Log(ex, $"File {path}");
                 }
             }
         }
@@ -61,7 +61,7 @@ namespace AE.Core
             }
             catch (Exception ex)
             {
-                Logger.DefaultLogger?.Log(ex);
+                AELogger.DefaultLogger?.Log(ex);
             }
         }
 
@@ -81,7 +81,7 @@ namespace AE.Core
             }
             catch (Exception ex)
             {
-                Logger.DefaultLogger?.Log(ex);
+                AELogger.DefaultLogger?.Log(ex);
             }
 
             return default;
@@ -107,7 +107,7 @@ namespace AE.Core
                 }
                 catch (Exception ex)
                 {
-                    Logger.DefaultLogger?.Log(ex);
+                    AELogger.DefaultLogger?.Log(ex);
                 }
             else
                 foreach (var constructor in constructors)
@@ -120,12 +120,12 @@ namespace AE.Core
                         }
                         catch (Exception ex)
                         {
-                            Logger.DefaultLogger?.Log(ex);
+                            AELogger.DefaultLogger?.Log(ex);
                         }
                     }
                 }
 
-            Logger.DefaultLogger?.Log($"Null control [type {type.Name}]");
+            AELogger.DefaultLogger?.Log($"Null control [type {type.Name}]");
 
             return null;
         }
