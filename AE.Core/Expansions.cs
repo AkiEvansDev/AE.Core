@@ -12,16 +12,25 @@ namespace AE.Core
     /// Expansions
     /// </summary>
     public static class Expansions
-    {
-        #region Type
+	{
+		public const string DATETIME_FORMAT = "MM.dd.yyyy HH:mm:ss.f";
+		public const string TIMESPAN_FORMAT = "c";
 
-        /// <summary>
-        /// Get object from type
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="params"></param>
-        /// <returns></returns>
-        public static object Object(this Type type, object[] @params = null)
+		public readonly static NumberFormatInfo NumberFormat = new NumberFormatInfo
+		{
+			NumberGroupSeparator = ".",
+			NumberDecimalSeparator = ".",
+		};
+
+		#region Type
+
+		/// <summary>
+		/// Get object from type
+		/// </summary>
+		/// <param name="type"></param>
+		/// <param name="params"></param>
+		/// <returns></returns>
+		public static object Object(this Type type, object[] @params = null)
         {
             return SerializerHelper.GetObject(type, @params);
         }
@@ -45,15 +54,12 @@ namespace AE.Core
         /// Convert string to int
         /// </summary>
         /// <param name="value"></param>
-        /// <param name="def"></param>
         /// <returns></returns>
-        public static int Int(this string value, int def = 0)
+        public static int Int(this string value)
         {
-            if (int.TryParse(value, out int parse))
-                return parse;
+            return int.Parse(value);
 
-            return def;
-        }
+		}
 
         /// <summary>
         /// Try convert string to int
@@ -70,14 +76,10 @@ namespace AE.Core
         /// Convert string to long
         /// </summary>
         /// <param name="value"></param>
-        /// <param name="def"></param>
         /// <returns></returns>
-        public static long Long(this string value, long def = 0)
+        public static long Long(this string value)
         {
-            if (long.TryParse(value, out long parse))
-                return parse;
-
-            return def;
+            return long.Parse(value);
         }
 
         /// <summary>
@@ -95,14 +97,10 @@ namespace AE.Core
         /// Convert string to float
         /// </summary>
         /// <param name="value"></param>
-        /// <param name="def"></param>
         /// <returns></returns>
-        public static float Single(this string value, float def = 0)
+        public static float Single(this string value)
         {
-            if (float.TryParse(value, out float parse))
-                return parse;
-
-            return def;
+            return float.Parse(value.Replace(',', '.'), NumberFormat);
         }
 
         /// <summary>
@@ -113,21 +111,17 @@ namespace AE.Core
         /// <returns></returns>
         public static bool TrySingle(this string value, out float result)
         {
-            return float.TryParse(value.Replace(',', '.'), out result);
+            return float.TryParse(value.Replace(',', '.'), NumberStyles.AllowThousands | NumberStyles.Float, NumberFormat, out result);
         }
 
         /// <summary>
         /// Convert string to double
         /// </summary>
         /// <param name="value"></param>
-        /// <param name="def"></param>
         /// <returns></returns>
-        public static double Double(this string value, double def = 0)
+        public static double Double(this string value)
         {
-            if (double.TryParse(value, out double parse))
-                return parse;
-
-            return def;
+            return double.Parse(value.Replace(',', '.'), NumberFormat);
         }
 
         /// <summary>
@@ -138,31 +132,67 @@ namespace AE.Core
         /// <returns></returns>
         public static bool TryDouble(this string value, out double result)
         {
-            return double.TryParse(value.Replace(',', '.'), out result);
-        }
+            return double.TryParse(value.Replace(',', '.'), NumberStyles.AllowThousands | NumberStyles.Float, NumberFormat, out result);
+		}
 
-        /// <summary>
-        /// Convert string to DateTime
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="format"></param>
-        /// <param name="provider"></param>
-        /// <returns></returns>
-        public static DateTime Date(this string value, string format = null, IFormatProvider provider = null)
+		/// <summary>
+		/// Convert string to decimal
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		public static decimal Decimal(this string value)
+		{
+			return decimal.Parse(value.Replace(',', '.'), NumberFormat);
+		}
+
+		/// <summary>
+		/// Try convert string to decimal
+		/// </summary>
+		/// <param name="value"></param>
+		/// <param name="result"></param>
+		/// <returns></returns>
+		public static bool TryDecimal(this string value, out decimal result)
+		{
+			return decimal.TryParse(value.Replace(',', '.'), NumberStyles.Number, NumberFormat, out result);
+		}
+
+		/// <summary>
+		/// Convert string to DateTime
+		/// </summary>
+		/// <param name="value"></param>
+		/// <param name="format"></param>
+		/// <param name="provider"></param>
+		/// <returns></returns>
+		public static DateTime Date(this string value, string format = null, IFormatProvider provider = null)
         {
             if (string.IsNullOrEmpty(format))
                 return DateTime.Parse(value);
 
             return DateTime.ParseExact(value, format, provider ?? CultureInfo.InvariantCulture);
-        }
+		}
 
-        /// <summary>
-        /// Equals string with StringComparison.OrdinalIgnoreCase
-        /// </summary>
-        /// <param name="value1"></param>
-        /// <param name="value2"></param>
-        /// <returns></returns>
-        public static bool EqualsIgnoreCase(this string value1, string value2)
+		/// <summary>
+		/// Convert string to TimeSpan
+		/// </summary>
+		/// <param name="value"></param>
+		/// <param name="format"></param>
+		/// <param name="provider"></param>
+		/// <returns></returns>
+		public static TimeSpan Time(this string value, string format = null, IFormatProvider provider = null)
+		{
+			if (string.IsNullOrEmpty(format))
+				return TimeSpan.Parse(value);
+
+			return TimeSpan.ParseExact(value, format, provider ?? CultureInfo.InvariantCulture);
+		}
+
+		/// <summary>
+		/// Equals string with StringComparison.OrdinalIgnoreCase
+		/// </summary>
+		/// <param name="value1"></param>
+		/// <param name="value2"></param>
+		/// <returns></returns>
+		public static bool EqualsIgnoreCase(this string value1, string value2)
         {
             return string.Equals(value1, value2, StringComparison.OrdinalIgnoreCase);
         }

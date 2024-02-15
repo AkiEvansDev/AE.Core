@@ -159,9 +159,9 @@ namespace AE.Core.Serializer
                 data = data.Remove(0, STRING_T.Length);
 
                 var lenString = data.Substring(0, data.IndexOf(']'));
-                var len = int.Parse(lenString);
+                var len = lenString.Int();
 
-                data = data.Substring(2 + lenString.Length, len);
+                data = data.Substring(lenString.Length + 1, len);
                 type = typeof(string);
             }
             else
@@ -200,7 +200,7 @@ namespace AE.Core.Serializer
                         var lenString = item.Substring(STRING_T.Length, item.IndexOf(']') - STRING_T.Length);
                         var len = lenString.Int();
 
-                        k = item.Substring(0, len + $"{STRING_T}{len}])".Length);
+                        k = item.Substring(0, len + $"{STRING_T}{len}]".Length);
                         v = item.Substring(k.Length + 1);
                     }
                     else
@@ -247,19 +247,19 @@ namespace AE.Core.Serializer
             }
 
             if (type == typeof(float))
-                return float.Parse(data.Replace(',', '.'), NumberFormat);
+                return data.Single();
 
             if (type == typeof(double))
-                return double.Parse(data.Replace(',', '.'), NumberFormat);
+                return data.Double();
 
             if (type == typeof(decimal))
-                return decimal.Parse(data.Replace(',', '.'), NumberFormat);
+                return data.Decimal();
 
             if (type == typeof(DateTime))
-                return DateTime.ParseExact(data, DATETIME_FORMAT, CultureInfo.InvariantCulture);
+                data.Date(Expansions.DATETIME_FORMAT);
 
             if (type == typeof(TimeSpan))
-                return TimeSpan.ParseExact(data, TIMESPAN_FORMAT, CultureInfo.InvariantCulture);
+                return data.Time(Expansions.TIMESPAN_FORMAT);
 
             if (type.IsEnum)
                 return Enum.Parse(value.GetType(), data);
@@ -303,7 +303,7 @@ namespace AE.Core.Serializer
                         var str = data.Substring(i);
                         var lenString = str.Substring(0, str.IndexOf(']'));
 
-                        i += 2 + lenString.Length + lenString.Int();
+                        i += lenString.Length + 1 + lenString.Int();
 
                         c = data[i];
                     }

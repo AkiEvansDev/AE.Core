@@ -156,9 +156,9 @@ namespace AE.Core.Serializer
                 }
             }
             else if (type == typeof(DateTime) && obj is DateTime dateTime)
-				builder.Append($"({SetSaveTypeId(type)}){dateTime.ToString(DATETIME_FORMAT, CultureInfo.InvariantCulture)}");
+				builder.Append($"({SetSaveTypeId(type)}){dateTime.ToString(Expansions.DATETIME_FORMAT, CultureInfo.InvariantCulture)}");
 			else if (type == typeof(TimeSpan) && obj is TimeSpan timeSpan)
-				builder.Append($"({SetSaveTypeId(type)}){timeSpan.ToString(TIMESPAN_FORMAT, CultureInfo.InvariantCulture)}");
+				builder.Append($"({SetSaveTypeId(type)}){timeSpan.ToString(Expansions.TIMESPAN_FORMAT, CultureInfo.InvariantCulture)}");
 			else if (type.IsPrimitive || type.IsEnum || (type.IsValueType && type.IsSerializable))
 				builder.Append($"({SetSaveTypeId(type)}){obj}");
         }
@@ -173,7 +173,7 @@ namespace AE.Core.Serializer
 
 			if (value is string str)
             {
-				builder.Append($"{STRING_T}{str.Length}]){str}");
+				builder.Append($"{STRING_T}{str.Length}]{str}");
                 return;
             }
 

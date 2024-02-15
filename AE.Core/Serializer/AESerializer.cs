@@ -11,15 +11,6 @@ namespace AE.Core.Serializer
     /// </summary>
     public partial class AESerializer : IDisposable
 	{
-		private readonly static NumberFormatInfo NumberFormat = new NumberFormatInfo
-		{
-			NumberGroupSeparator = ".",
-			NumberDecimalSeparator = ".",
-		};
-
-		private const string DATETIME_FORMAT = "MM.dd.yyyy HH:mm:ss.f";
-        private const string TIMESPAN_FORMAT = "c";
-
 		private const char FIRST_ST = '~';
         private const string STRING_T = "~[";
 
