@@ -289,7 +289,7 @@ namespace AE.Core
         /// <typeparam name="TAttribute"></typeparam>
         /// <param name="enum"></param>
         /// <returns></returns>
-        public static TAttribute Attribute<T, TAttribute>(this Enum @enum) 
+        public static TAttribute Attribute<T, TAttribute>(this T @enum) 
             where T : Enum
             where TAttribute : Attribute
         {
