@@ -257,16 +257,26 @@ namespace AE.Core
         /// <returns></returns>
         public static IEnumerable<T> Values<T>(this T @enum) where T : Enum
         {
-            return Enum.GetValues(@enum.GetType()).Cast<T>();
+            return @enum.Values().Cast<T>();
         }
 
-        /// <summary>
-        /// Get enum name
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="enum"></param>
-        /// <returns></returns>
-        public static string Name<T>(this T @enum) where T : Enum
+		/// <summary>
+		/// Get all enum values
+		/// </summary>
+		/// <param name="enum"></param>
+		/// <returns></returns>
+		public static Array Values(this Enum @enum)
+        {
+			return Enum.GetValues(@enum.GetType());
+		}
+
+		/// <summary>
+		/// Get enum name
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="enum"></param>
+		/// <returns></returns>
+		public static string Name(this Enum @enum)
         {
             return Enum.GetName(@enum.GetType(), @enum);
         }
@@ -274,23 +284,20 @@ namespace AE.Core
         /// <summary>
         /// Get enum name
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="enum"></param>
         /// <returns></returns>
-        public static string[] Names<T>(this T @enum) where T : Enum
+        public static string[] Names(this Enum @enum)
         {
-            return Enum.GetNames(typeof(T));
+            return Enum.GetNames(@enum.GetType());
         }
 
         /// <summary>
         /// A generic extension method that aids in reflecting and retrieving any attribute that is applied to an `Enum`
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <typeparam name="TAttribute"></typeparam>
         /// <param name="enum"></param>
         /// <returns></returns>
-        public static TAttribute Attribute<T, TAttribute>(this T @enum) 
-            where T : Enum
+        public static TAttribute Attribute<TAttribute>(this Enum @enum) 
             where TAttribute : Attribute
         {
             return @enum

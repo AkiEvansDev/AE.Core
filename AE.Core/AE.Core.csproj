@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
 	  
-    <Version>3.0.5</Version>
+    <Version>3.0.6</Version>
 	<Title>AE.Core</Title>
     <Description>AE.Core</Description>
     <Authors>AkiEvans</Authors>
