@@ -255,7 +255,7 @@ namespace AE.Core
         /// <typeparam name="T"></typeparam>
         /// <param name="enum"></param>
         /// <returns></returns>
-        public static IEnumerable<T> Values<T>(this T @enum) where T : Enum
+        public static IEnumerable<T> Values<T>(this Enum @enum) where T : Enum
         {
             return @enum.Values().Cast<T>();
         }

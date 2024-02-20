@@ -56,6 +56,11 @@ public class AESerializerTest
 	public struct SubTestSerializerStruct
 	{
 		public string Text { get; set; }
+
+		public SubTestSerializerStruct(string text)
+		{
+			Text = text;
+		}
 	}
 
 	[Test]
