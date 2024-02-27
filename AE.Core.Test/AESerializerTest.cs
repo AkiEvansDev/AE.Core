@@ -39,6 +39,7 @@ public class AESerializerTest
 		public ITestClass TestInterface { get; set; }
 		public SubTestSerializerClass SubTestClass { get; set; }
 		public SubTestSerializerStruct SubTestStruct { get; set; }
+		public IDictionary<string, string> keyValuePairs { get; set; }
 	}
 
 	public interface ITestClass
@@ -93,6 +94,10 @@ public class AESerializerTest
 			{
 				Text = "~[Test&^$(']",
 			},
+			keyValuePairs = new Dictionary<string, string>
+			{
+				{ "1", "2" }
+			}
 		};
 
 		var data = serializer.Serialize(obj);
