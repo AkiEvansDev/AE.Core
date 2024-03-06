@@ -1,10 +1,12 @@
 ﻿using AE.Core.Serializer;
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Xml.Linq;
 
 namespace AE.Core
 {
@@ -346,15 +348,39 @@ namespace AE.Core
             return source.GroupBy(x => i++ / partitionSize).Select(g => g.ToArray()).ToArray();
         }
 
-        #endregion
-        #region Serializer
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="source"></param>
+		/// <param name="item"></param>
+		public static void InsertSorted<T>(this IList source, T item) where T : IComparable<T>
+		{
+			var index = source.OfType<T>().Count(i => i.CompareTo(item) < 0);
+			source.Insert(index, item);
+		}
 
-        /// <summary>
-        /// Serialize object
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        public static string Serialize(this object obj)
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="source"></param>
+		/// <param name="item"></param>
+		public static void InsertSortedDescending<T>(this IList source, T item) where T : IComparable<T>
+		{
+			var index = source.OfType<T>().Count(i => i.CompareTo(item) > 0);
+			source.Insert(index, item);
+		}
+
+		#endregion
+		#region Serializer
+
+		/// <summary>
+		/// Serialize object
+		/// </summary>
+		/// <param name="obj"></param>
+		/// <returns></returns>
+		public static string Serialize(this object obj)
         {
             var serializer = new AESerializer();
             return serializer.Serialize(obj);
