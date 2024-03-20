@@ -97,13 +97,25 @@ namespace AE.Core.Serializer
 			var types = "";
 			var referenceBuilder = new StringBuilder();
 
-			foreach (var reference in ReferenceTable.Where(r => r.HasReference && r.Id > 0).Reverse())
-			{
-				var objBuilder = new StringBuilder();
-				SerializeObj(reference.Obj, objBuilder);
+			var prevCount = -1;
+			var newCount = 0;
 
-				referenceBuilder.Append($"{objBuilder.Length + reference.Id.ToString().Length + 2}&{reference.Id}&");
-				referenceBuilder.Append(objBuilder);
+			while (prevCount != newCount)
+			{
+				prevCount = ReferenceTable.Count;
+
+				foreach (var reference in ReferenceTable.Where(r => r.HasReference && r.Id > 0).Reverse().ToList())
+				{
+					var objBuilder = new StringBuilder();
+					SerializeObj(reference.Obj, objBuilder);
+
+					referenceBuilder.Insert(0, objBuilder);
+					referenceBuilder.Insert(0, $"{objBuilder.Length + reference.Id.ToString().Length + 2}&{reference.Id}&");
+
+					ReferenceTable.Remove(reference);
+				}
+
+				newCount = ReferenceTable.Count;
 			}
 
 			if (referenceBuilder.Length > 0)
