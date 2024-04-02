@@ -158,7 +158,7 @@ public class AESerializerTest
 		public ReferenceTest SubData1 { get; set; }
 		public ReferenceTest SubData2 { get; set; }
 	}
-	
+
 	[AESerializable]
 	public class ReferenceTestArray
 	{

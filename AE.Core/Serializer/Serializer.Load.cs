@@ -1,30 +1,28 @@
-﻿using AE.Core.Log;
-using AE.Dal;
-
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 
+using AE.Dal;
+
 namespace AE.Core.Serializer
 {
-    public partial class AESerializer
-    {
-        /// <summary>
-        /// Deserialize object from string
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        public T Deserialize<T>(string data)
-        {
-            var result = Deserialize(data);
+	public partial class AESerializer
+	{
+		/// <summary>
+		/// Deserialize object from string
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="data"></param>
+		/// <returns></returns>
+		public T Deserialize<T>(string data)
+		{
+			var result = Deserialize(data);
 
-            if (result == null)
-                return (T)typeof(T).Object();
+			if (result == null)
+				return (T)typeof(T).Object();
 
 			return (T)result;
 		}
@@ -60,7 +58,7 @@ namespace AE.Core.Serializer
 					var type = GetSaveType(data[1..data.IndexOf(')')]);
 					var obj = type.Object();
 
-                    SetReferenceObject(0, obj);
+					SetReferenceObject(0, obj);
 
 					if (!referencesData.IsNull())
 					{
@@ -84,11 +82,11 @@ namespace AE.Core.Serializer
 						}
 					}
 
-                    return DeserializeObject(data, obj);
-                }
+					return DeserializeObject(data, obj);
+				}
 			}
 
-            return DeserializeObject(-1, data);
+			return DeserializeObject(-1, data);
 		}
 
 		private string BeforeDeserialize(string data)
@@ -108,8 +106,8 @@ namespace AE.Core.Serializer
 				}
 			}
 
-            return data;
-        }
+			return data;
+		}
 
 		private object DeserializeObject(int id, string data)
 		{
@@ -117,10 +115,10 @@ namespace AE.Core.Serializer
 				return null;
 
 			var type = GetSaveType(data[1..data.IndexOf(')')]);
-            var obj = type.Object();
+			var obj = type.Object();
 
-            if (id >= 0)
-			    SetReferenceObject(id, obj);
+			if (id >= 0)
+				SetReferenceObject(id, obj);
 
 			return DeserializeObject(data, obj);
 		}
@@ -130,7 +128,7 @@ namespace AE.Core.Serializer
 			if (data.IsNull())
 				return null;
 
-            var type = obj.GetType();
+			var type = obj.GetType();
 
 			if (type.GetCustomAttribute<AESerializableAttribute>() != null)
 			{
@@ -147,188 +145,188 @@ namespace AE.Core.Serializer
 		}
 
 		private object DeserializeValue(string data)
-        {
-            if (data.IsNull())
-                return null;
+		{
+			if (data.IsNull())
+				return null;
 
-            Type type = null;
+			Type type = null;
 
-            if (data.StartsWith(STRING_T))
-            {
-                data = data.Remove(0, STRING_T.Length);
+			if (data.StartsWith(STRING_T))
+			{
+				data = data.Remove(0, STRING_T.Length);
 
-                var lenString = data[..data.IndexOf(']')];
-                var len = lenString.Int();
+				var lenString = data[..data.IndexOf(']')];
+				var len = lenString.Int();
 
-                data = data.Substring(lenString.Length + 1, len);
-                type = typeof(string);
-            }
-            else
-            {
-                data = data.Remove(0, 1);
-                type = GetSaveType(data[..data.IndexOf(')')]);
-                data = data.Remove(0, data.IndexOf(')') + 1);
-            }
+				data = data.Substring(lenString.Length + 1, len);
+				type = typeof(string);
+			}
+			else
+			{
+				data = data.Remove(0, 1);
+				type = GetSaveType(data[..data.IndexOf(')')]);
+				data = data.Remove(0, data.IndexOf(')') + 1);
+			}
 
-            if (type == null)
-                throw new ArgumentNullException();
+			if (type == null)
+				throw new ArgumentNullException();
 
-            if (data.IsNull())
-                return Convert.ChangeType(null, type) ?? type.Object();
+			if (data.IsNull())
+				return Convert.ChangeType(null, type) ?? type.Object();
 
-            if (type == typeof(string))
-                return data;
+			if (type == typeof(string))
+				return data;
 
-            if (data.StartsWith("ref"))
-                return GetReferenceObject(data[3..]);
+			if (data.StartsWith("ref"))
+				return GetReferenceObject(data[3..]);
 
-            var value = type.Object();
+			var value = type.Object();
 
-            if (value is IDictionary dictionary)
-            {
-                var keyType = dictionary.GetType().GenericTypeArguments[0];
-                var valueType = dictionary.GetType().GenericTypeArguments[1];
+			if (value is IDictionary dictionary)
+			{
+				var keyType = dictionary.GetType().GenericTypeArguments[0];
+				var valueType = dictionary.GetType().GenericTypeArguments[1];
 
-                foreach (var param in Parse(data))
-                {
-                    var item = param.Value;
-                    string k, v;
+				foreach (var param in Parse(data))
+				{
+					var item = param.Value;
+					string k, v;
 
-                    if (item.StartsWith(STRING_T))
-                    {
-                        var lenString = item[STRING_T.Length..item.IndexOf(']')];
-                        var len = lenString.Int();
+					if (item.StartsWith(STRING_T))
+					{
+						var lenString = item[STRING_T.Length..item.IndexOf(']')];
+						var len = lenString.Int();
 
-                        k = item[..(len + $"{STRING_T}{len}]".Length)];
-                        v = item[(k.Length + 1)..];
-                    }
-                    else
-                    {
-                        k = item[..item.IndexOf('|')];
-                        v = item[(k.Length + 1)..];
-                    }
+						k = item[..(len + $"{STRING_T}{len}]".Length)];
+						v = item[(k.Length + 1)..];
+					}
+					else
+					{
+						k = item[..item.IndexOf('|')];
+						v = item[(k.Length + 1)..];
+					}
 
-                    dictionary.Add(DeserializeValue(k), DeserializeValue(v));
-                }
+					dictionary.Add(DeserializeValue(k), DeserializeValue(v));
+				}
 
-                return dictionary;
-            }
-            else if (value is IEnumerable enumerable)
-            {
-                var itemType = type.IsArray ? enumerable.GetType().GetElementType() : enumerable.GetType().GenericTypeArguments[0];
-                var items = new List<object>();
+				return dictionary;
+			}
+			else if (value is IEnumerable enumerable)
+			{
+				var itemType = type.IsArray ? enumerable.GetType().GetElementType() : enumerable.GetType().GenericTypeArguments[0];
+				var items = new List<object>();
 
-                foreach (var param in Parse(data))
-                    items.Add(DeserializeValue(param.Value));
+				foreach (var param in Parse(data))
+					items.Add(DeserializeValue(param.Value));
 
-                var enumerableType = typeof(Enumerable);
+				var enumerableType = typeof(Enumerable);
 
-                var castMethod = enumerableType.GetMethod(nameof(Enumerable.Cast)).MakeGenericMethod(itemType);
-                var castedItems = castMethod.Invoke(null, new[] { items });
+				var castMethod = enumerableType.GetMethod(nameof(Enumerable.Cast)).MakeGenericMethod(itemType);
+				var castedItems = castMethod.Invoke(null, new[] { items });
 
-                if (type.IsArray)
-                {
-                    var toArrayMethod = enumerableType.GetMethod(nameof(Enumerable.ToArray)).MakeGenericMethod(itemType);
-                    return toArrayMethod.Invoke(null, new[] { castedItems });
-                }
-                else
-                {
-                    var toListMethod = enumerableType.GetMethod(nameof(Enumerable.ToList)).MakeGenericMethod(itemType);
-                    castedItems = toListMethod.Invoke(null, new[] { castedItems });
+				if (type.IsArray)
+				{
+					var toArrayMethod = enumerableType.GetMethod(nameof(Enumerable.ToArray)).MakeGenericMethod(itemType);
+					return toArrayMethod.Invoke(null, new[] { castedItems });
+				}
+				else
+				{
+					var toListMethod = enumerableType.GetMethod(nameof(Enumerable.ToList)).MakeGenericMethod(itemType);
+					castedItems = toListMethod.Invoke(null, new[] { castedItems });
 
-                    var observType = typeof(ObservableCollection<>).MakeGenericType(itemType);
+					var observType = typeof(ObservableCollection<>).MakeGenericType(itemType);
 
-                    if (type == observType)
-                        return observType.Object(new object[] { castedItems });
+					if (type == observType)
+						return observType.Object(new object[] { castedItems });
 
-                    return castedItems;
-                }
-            }
+					return castedItems;
+				}
+			}
 
-            if (type == typeof(float))
-                return data.Single();
+			if (type == typeof(float))
+				return data.Single();
 
-            if (type == typeof(double))
-                return data.Double();
+			if (type == typeof(double))
+				return data.Double();
 
-            if (type == typeof(decimal))
-                return data.Decimal();
+			if (type == typeof(decimal))
+				return data.Decimal();
 
-            if (type == typeof(DateTime))
-                data.Date(Expansions.DATETIME_FORMAT);
+			if (type == typeof(DateTime))
+				data.Date(Expansions.DATETIME_FORMAT);
 
-            if (type == typeof(TimeSpan))
-                return data.Time(Expansions.TIMESPAN_FORMAT);
+			if (type == typeof(TimeSpan))
+				return data.Time(Expansions.TIMESPAN_FORMAT);
 
-            if (type.IsEnum)
-                return Enum.Parse(value.GetType(), data);
+			if (type.IsEnum)
+				return Enum.Parse(value.GetType(), data);
 
-            if (value is Guid)
-                return new Guid(data);
+			if (value is Guid)
+				return new Guid(data);
 
-            return DeserializeObject(data, value);
-        }
+			return DeserializeObject(data, value);
+		}
 
-        private Dictionary<string, string> Parse(string data)
-        {
-            var result = new Dictionary<string, string>();
+		private Dictionary<string, string> Parse(string data)
+		{
+			var result = new Dictionary<string, string>();
 
-            if (data.IsNull())
-                return result;
+			if (data.IsNull())
+				return result;
 
-            if (data[0] == '(')
-                data = data.Remove(0, data.IndexOf(')') + 1);
+			if (data[0] == '(')
+				data = data.Remove(0, data.IndexOf(')') + 1);
 
-            while (data.Length > 0)
-            {
-                string key, value;
+			while (data.Length > 0)
+			{
+				string key, value;
 
-                data = data.Remove(0, 2);
-                key = data[..data.IndexOf(']')];
-                data = data.Remove(0, key.Length + 2);
+				data = data.Remove(0, 2);
+				key = data[..data.IndexOf(']')];
+				data = data.Remove(0, key.Length + 2);
 
-                var start = 1;
-                var end = 0;
-                var index = 0;
+				var start = 1;
+				var end = 0;
+				var index = 0;
 
-                for (var i = 0; i < data.Length; ++i)
-                {
-                    var c = data[i];
+				for (var i = 0; i < data.Length; ++i)
+				{
+					var c = data[i];
 
-                    if (c == FIRST_ST && data[i..].StartsWith(STRING_T))
-                    {
-                        i += STRING_T.Length;
+					if (c == FIRST_ST && data[i..].StartsWith(STRING_T))
+					{
+						i += STRING_T.Length;
 
-                        var str = data[i..];
-                        var lenString = str[..str.IndexOf(']')];
+						var str = data[i..];
+						var lenString = str[..str.IndexOf(']')];
 
-                        i += lenString.Length + 1 + lenString.Int();
+						i += lenString.Length + 1 + lenString.Int();
 
-                        c = data[i];
-                    }
+						c = data[i];
+					}
 
-                    if (c == '<')
-                        start++;
-                    else if (c == '>')
-                        end++;
+					if (c == '<')
+						start++;
+					else if (c == '>')
+						end++;
 
-                    if (start == end)
-                    {
-                        index = i;
-                        break;
-                    }
-                }
+					if (start == end)
+					{
+						index = i;
+						break;
+					}
+				}
 
-                value = data[..index];
-                data = data.Remove(0, value.Length);
+				value = data[..index];
+				data = data.Remove(0, value.Length);
 
-                result.Add(key, value);
+				result.Add(key, value);
 
-                if (!data.IsNull() && data[0] == '>')
-                    data = data.Remove(0, 1);
-            }
+				if (!data.IsNull() && data[0] == '>')
+					data = data.Remove(0, 1);
+			}
 
-            return result;
-        }
-    }
+			return result;
+		}
+	}
 }

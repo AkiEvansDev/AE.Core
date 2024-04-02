@@ -95,8 +95,8 @@ namespace AE.Core
 		}
 
 		/// <internalonly/>
-		IEnumerator<T> IEnumerable<T>.GetEnumerator() => Count == 0 
-			? Enumerable.Empty<T>().GetEnumerator() 
+		IEnumerator<T> IEnumerable<T>.GetEnumerator() => Count == 0
+			? Enumerable.Empty<T>().GetEnumerator()
 			: GetEnumerator();
 
 		IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<T>)this).GetEnumerator();
@@ -147,7 +147,7 @@ namespace AE.Core
 			var item = array[size];
 
 			if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
-				array[size] = default!; 
+				array[size] = default!;
 
 			return item;
 		}
@@ -213,7 +213,7 @@ namespace AE.Core
 
 			if ((uint)newcapacity > maxSize) newcapacity = maxSize;
 
-			if (newcapacity < capacity) 
+			if (newcapacity < capacity)
 				newcapacity = capacity;
 
 			Array.Resize(ref array, newcapacity);
