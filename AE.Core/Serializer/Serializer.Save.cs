@@ -6,6 +6,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
+using AE.Dal;
+
 namespace AE.Core.Serializer
 {
     public partial class AESerializer : IDisposable
@@ -146,8 +148,7 @@ namespace AE.Core.Serializer
 
         private void SerializeObj(object obj, StringBuilder builder = null)
         {
-            if (builder == null)
-                builder = Builder;
+			builder ??= Builder;
 
 			var type = obj?.GetType();
 
@@ -180,8 +181,7 @@ namespace AE.Core.Serializer
             if (value == null)
                 return;
 
-			if (builder == null)
-				builder = Builder;
+			builder ??= Builder;
 
 			if (value is string str)
             {

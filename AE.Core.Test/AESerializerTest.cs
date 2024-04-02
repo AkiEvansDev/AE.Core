@@ -1,4 +1,5 @@
 using AE.Core.Serializer;
+using AE.Dal;
 
 namespace AE.Core.Test;
 

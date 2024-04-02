@@ -1,4 +1,5 @@
 ﻿using AE.Core.Log;
+using AE.Dal;
 
 using System;
 using System.Collections;
@@ -40,8 +41,8 @@ namespace AE.Core.Serializer
 			if (data.Length < 2)
 				throw new Exception("Incorect data");
 
-			var options = data.Substring(0, 2);
-			data = data.Substring(2);
+			var options = data[..2];
+			data = data[2..];
 
 			if (options.Contains("t"))
 				data = BeforeDeserialize(data);
@@ -49,14 +50,14 @@ namespace AE.Core.Serializer
 			if (options.Contains("r"))
 			{
 				var index = data.IndexOf("&");
-				if (index < data.Length && data.Substring(0, index).TryInt(out int len))
+				if (index < data.Length && data[..index].TryInt(out int len))
 				{
 					var start = len.ToString().Length + 1;
 					var referencesData = data.Substring(start, len - 1);
 
-					data = data.Substring(referencesData.Length + start);
+					data = data[(referencesData.Length + start)..];
 
-					var type = GetSaveType(data.Substring(1, data.IndexOf(')') - 1));
+					var type = GetSaveType(data[1..data.IndexOf(')')]);
 					var obj = type.Object();
 
                     SetReferenceObject(0, obj);
@@ -66,17 +67,17 @@ namespace AE.Core.Serializer
 						while (referencesData.Length > 0)
 						{
 							index = referencesData.IndexOf("&");
-							if (index < referencesData.Length && referencesData.Substring(0, index).TryInt(out len))
+							if (index < referencesData.Length && referencesData[..index].TryInt(out len))
 							{
 								start = len.ToString().Length + 1;
 								var refData = referencesData.Substring(start, len - 1);
 
-								referencesData = referencesData.Substring(refData.Length + start);
+								referencesData = referencesData[(refData.Length + start)..];
 
 								index = refData.IndexOf("&");
-								if (index < refData.Length && refData.Substring(0, index).TryInt(out int id))
+								if (index < refData.Length && refData[..index].TryInt(out int id))
 								{
-									refData = refData.Substring(index + 1);
+									refData = refData[(index + 1)..];
 									DeserializeObject(id, refData);
 								}
 							}
@@ -93,12 +94,12 @@ namespace AE.Core.Serializer
 		private string BeforeDeserialize(string data)
 		{
 			var index = data.IndexOf("&");
-			if (index < data.Length && data.Substring(0, index).TryInt(out int len))
+			if (index < data.Length && data[..index].TryInt(out int len))
 			{
 				var start = len.ToString().Length + 1;
 				var typesData = data.Substring(start, len - 1);
 
-				data = data.Substring(typesData.Length + start);
+				data = data[(typesData.Length + start)..];
 
 				if (!typesData.IsNull())
 				{
@@ -115,7 +116,7 @@ namespace AE.Core.Serializer
 			if (data.IsNull())
 				return null;
 
-			var type = GetSaveType(data.Substring(1, data.IndexOf(')') - 1));
+			var type = GetSaveType(data[1..data.IndexOf(')')]);
             var obj = type.Object();
 
             if (id >= 0)
@@ -136,9 +137,7 @@ namespace AE.Core.Serializer
 				foreach (var param in Parse(data))
 				{
 					var property = type.GetProperty(param.Key);
-
-					if (property != null)
-						property.SetValue(obj, DeserializeValue(param.Value));
+					property?.SetValue(obj, DeserializeValue(param.Value));
 				}
 
 				return obj;
@@ -158,7 +157,7 @@ namespace AE.Core.Serializer
             {
                 data = data.Remove(0, STRING_T.Length);
 
-                var lenString = data.Substring(0, data.IndexOf(']'));
+                var lenString = data[..data.IndexOf(']')];
                 var len = lenString.Int();
 
                 data = data.Substring(lenString.Length + 1, len);
@@ -167,7 +166,7 @@ namespace AE.Core.Serializer
             else
             {
                 data = data.Remove(0, 1);
-                type = GetSaveType(data.Substring(0, data.IndexOf(')')));
+                type = GetSaveType(data[..data.IndexOf(')')]);
                 data = data.Remove(0, data.IndexOf(')') + 1);
             }
 
@@ -181,7 +180,7 @@ namespace AE.Core.Serializer
                 return data;
 
             if (data.StartsWith("ref"))
-                return GetReferenceObject(data.Substring(3));
+                return GetReferenceObject(data[3..]);
 
             var value = type.Object();
 
@@ -197,16 +196,16 @@ namespace AE.Core.Serializer
 
                     if (item.StartsWith(STRING_T))
                     {
-                        var lenString = item.Substring(STRING_T.Length, item.IndexOf(']') - STRING_T.Length);
+                        var lenString = item[STRING_T.Length..item.IndexOf(']')];
                         var len = lenString.Int();
 
-                        k = item.Substring(0, len + $"{STRING_T}{len}]".Length);
-                        v = item.Substring(k.Length + 1);
+                        k = item[..(len + $"{STRING_T}{len}]".Length)];
+                        v = item[(k.Length + 1)..];
                     }
                     else
                     {
-                        k = item.Substring(0, item.IndexOf('|'));
-                        v = item.Substring(k.Length + 1);
+                        k = item[..item.IndexOf('|')];
+                        v = item[(k.Length + 1)..];
                     }
 
                     dictionary.Add(DeserializeValue(k), DeserializeValue(v));
@@ -285,7 +284,7 @@ namespace AE.Core.Serializer
                 string key, value;
 
                 data = data.Remove(0, 2);
-                key = data.Substring(0, data.IndexOf(']'));
+                key = data[..data.IndexOf(']')];
                 data = data.Remove(0, key.Length + 2);
 
                 var start = 1;
@@ -296,12 +295,12 @@ namespace AE.Core.Serializer
                 {
                     var c = data[i];
 
-                    if (c == FIRST_ST && data.Substring(i).StartsWith(STRING_T))
+                    if (c == FIRST_ST && data[i..].StartsWith(STRING_T))
                     {
                         i += STRING_T.Length;
 
-                        var str = data.Substring(i);
-                        var lenString = str.Substring(0, str.IndexOf(']'));
+                        var str = data[i..];
+                        var lenString = str[..str.IndexOf(']')];
 
                         i += lenString.Length + 1 + lenString.Int();
 
@@ -320,7 +319,7 @@ namespace AE.Core.Serializer
                     }
                 }
 
-                value = data.Substring(0, index);
+                value = data[..index];
                 data = data.Remove(0, value.Length);
 
                 result.Add(key, value);

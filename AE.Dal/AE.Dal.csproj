@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+
+	<Version>1.1.0</Version>
+	<Title>AE.Dal</Title>
+	<Description>AE.Dal</Description>
+	<Authors>AkiEvans</Authors>
+	<PackageTags>AE.Dal;</PackageTags>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	<RepositoryType>git</RepositoryType>
+	<RepositoryUrl>https://github.com/AkiEvansDev/AE.Core</RepositoryUrl>
+	<PackageProjectUrl>https://github.com/AkiEvansDev/AE.Core</PackageProjectUrl>
+  </PropertyGroup>
+
+</Project>

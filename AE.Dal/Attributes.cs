@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace AE.Core
+namespace AE.Dal
 {
-    /// <summary>
-    /// Marks class as serializable
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
+	/// <summary>
+	/// Marks class as serializable
+	/// </summary>
+	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public class AESerializableAttribute : Attribute { }
 
 	/// <summary>
