@@ -209,6 +209,26 @@ namespace AE.Core
 		}
 
 		/// <summary>
+		/// Upper first char in string
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		public static string UpFirst(this string value)
+		{
+			return value[..1].ToUpper() + value[1..];
+		}
+
+		/// <summary>
+		/// Lower first char in string
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		public static string LowFirst(this string value)
+		{
+			return value[..1].ToLower() + value[1..];
+		}
+
+		/// <summary>
 		/// String IsNullOrEmpty
 		/// </summary>
 		/// <param name="value"></param>
@@ -229,7 +249,7 @@ namespace AE.Core
 			var index = 1;
 			var newValue = value;
 
-			while (values.Any(v => v.Equals(newValue, StringComparison.InvariantCultureIgnoreCase)))
+			while (values.Any(v => v.EqualsIgnoreCase(newValue)))
 			{
 				newValue = $"{value}#{index}";
 				index++;
@@ -245,7 +265,7 @@ namespace AE.Core
 		/// <param name="values"></param>
 		/// <returns></returns>
 		public static bool AnyFrom(this string value, IEnumerable<string> values)
-			=> values.Any(v => v.Equals(value, StringComparison.InvariantCultureIgnoreCase));
+			=> values.Any(v => v.EqualsIgnoreCase(value));
 
 		#endregion
 		#region Enum
