@@ -199,6 +199,18 @@ namespace AE.Core
 		}
 
 		/// <summary>
+		/// Search any word of value2 in string with StringComparison.OrdinalIgnoreCase
+		/// </summary>
+		/// <param name="value1"></param>
+		/// <param name="value2"></param>
+		/// <returns></returns>
+		public static bool Search(this string value1, string value2)
+		{
+			var parts = value2.Split(' ');
+			return parts.Any(p => value1.Contains(p, StringComparison.OrdinalIgnoreCase));
+		}
+
+		/// <summary>
 		/// Get type by string name
 		/// </summary>
 		/// <param name="value"></param>
