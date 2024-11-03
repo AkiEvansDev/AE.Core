@@ -52,8 +52,8 @@ namespace AE.Core.Log
 		}
 
 		/// <inheritdoc/>
-		public void Log(string message, LogLevel level = LogLevel.Message, [CallerMemberName] string method = null, bool ignoreEvent = false)
-			=> Log(null, message, level, method, ignoreEvent);
+		public void Log(string message, LogLevel level = LogLevel.Message, bool ignoreEvent = false)
+			=> Log(null, message, level, "", ignoreEvent);
 
 		/// <inheritdoc/>
 		public void Log(Exception ex, string message = null, LogLevel level = LogLevel.Error, [CallerMemberName] string method = null, bool ignoreEvent = false)

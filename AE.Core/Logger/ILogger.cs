@@ -18,9 +18,8 @@ namespace AE.Core.Log
         /// </summary>
         /// <param name="message"></param>
         /// <param name="level"></param>
-        /// <param name="method"></param>
         /// <param name="ignoreEvent"></param>
-        void Log(string message, LogLevel level = LogLevel.Message, string method = null, bool ignoreEvent = false);
+        void Log(string message, LogLevel level = LogLevel.Message, bool ignoreEvent = false);
 
         /// <summary>
         /// Format exception and log
