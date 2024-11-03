@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AE.Dal;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -51,15 +52,15 @@ namespace AE.Core.Log
 		}
 
 		/// <inheritdoc/>
-		public void Log(string message, [CallerMemberName] string method = null, bool ignoreEvent = false)
-			=> Log(null, message, method, ignoreEvent);
+		public void Log(string message, LogLevel level = LogLevel.Message, [CallerMemberName] string method = null, bool ignoreEvent = false)
+			=> Log(null, message, level, method, ignoreEvent);
 
 		/// <inheritdoc/>
-		public void Log(Exception ex, string message = null, [CallerMemberName] string method = null, bool ignoreEvent = false)
+		public void Log(Exception ex, string message = null, LogLevel level = LogLevel.Error, [CallerMemberName] string method = null, bool ignoreEvent = false)
 		{
 			if (ex != null)
 			{
-				message = $"{(message.IsNull() ? "" : $"{message}:{Environment.NewLine}")}";
+				message = $"{(!method.IsNull() ? $"{method}() - " : "")}{(message.IsNull() ? "" : $"{message}:{Environment.NewLine}")}";
 				var tab = "";
 
 				while (ex != null)
@@ -70,14 +71,14 @@ namespace AE.Core.Log
 				}
 			}
 
-			Log($"[{DateTime.Now:hh:mm:ss}]{(!Tag.IsNull() ? $"{Tag.ToUpper()}" : "")}[{(ex != null ? "ERROR" : "LOG")}] {(!method.IsNull() ? $"{method}() - " : "")}{message}", ignoreEvent);
+			Log($"[{DateTime.Now:hh:mm:ss}]{(!Tag.IsNull() ? $"[{Tag.ToUpper()}]" : "")}[{level.GetDescription()}] {message}", ignoreEvent);
 		}
 
 		private void Log(string message, bool ignoreEvent)
 		{
 			lock (this)
 			{
-				if (ignoreEvent)
+				if (!ignoreEvent)
 					OnLog?.Invoke(message);
 
 				foreach (var provider in Providers)

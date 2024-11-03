@@ -259,8 +259,11 @@ namespace AE.Dal
 
 	public enum LogLevel
 	{
+		[Description("MESSAGE")]
 		Message = 0,
-		Warning = 1,
-		Error = 2,
+        [Description("WARNING")]
+        Warning = 1,
+        [Description("ERROR")]
+        Error = 2,
 	}
 }

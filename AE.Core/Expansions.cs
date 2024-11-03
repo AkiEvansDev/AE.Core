@@ -342,6 +342,16 @@ namespace AE.Core
         }
 
         /// <summary>
+        /// Get enum value description from DescriptionAttribute
+        /// </summary>
+        /// <param name="enum"></param>
+        /// <returns></returns>
+        public static string GetDescription(this Enum @enum)
+        {
+			return @enum.GetAttribute<DescriptionAttribute>().Description;
+        }
+
+        /// <summary>
         /// Get enum value and description from DescriptionAttribute
         /// </summary>
         /// <param name="enum"></param>

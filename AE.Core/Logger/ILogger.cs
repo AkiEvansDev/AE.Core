@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AE.Dal;
+using System;
 
 namespace AE.Core.Log
 {
@@ -12,21 +13,23 @@ namespace AE.Core.Log
 		/// </summary>
 		string Tag { get; set; }
 
-		/// <summary>
-		/// Format message and log
-		/// </summary>
-		/// <param name="message"></param>
-		/// <param name="method"></param>
-		/// <param name="ignoreEvent"></param>
-		void Log(string message, string method = null, bool ignoreEvent = false);
+        /// <summary>
+        /// Format message and log
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="level"></param>
+        /// <param name="method"></param>
+        /// <param name="ignoreEvent"></param>
+        void Log(string message, LogLevel level = LogLevel.Message, string method = null, bool ignoreEvent = false);
 
-		/// <summary>
-		/// Format exception and log
-		/// </summary>
-		/// <param name="ex"></param>
-		/// <param name="message"></param>
-		/// <param name="method"></param>
-		/// <param name="ignoreEvent"></param>
-		void Log(Exception ex, string message = null, string method = null, bool ignoreEvent = false);
+        /// <summary>
+        /// Format exception and log
+        /// </summary>
+        /// <param name="ex"></param>
+        /// <param name="message"></param>
+        /// <param name="level"></param>
+        /// <param name="method"></param>
+        /// <param name="ignoreEvent"></param>
+        void Log(Exception ex, string message = null, LogLevel level = LogLevel.Error, string method = null, bool ignoreEvent = false);
 	}
 }
