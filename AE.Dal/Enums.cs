@@ -250,10 +250,17 @@ namespace AE.Dal
 		VividCerulean = 14,
 	}
 
-	public enum ColorType
+	public enum FactorType
 	{
 		Color = 0,
 		Shade = 1,
 		Tint = 2,
+	}
+
+	public enum LogLevel
+	{
+		Message = 0,
+		Warning = 1,
+		Error = 2,
 	}
 }

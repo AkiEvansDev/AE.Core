@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
+using System.Globalization;
 
 namespace AE.Dal
 {
@@ -29,11 +30,11 @@ namespace AE.Dal
 			});
 
 		public ColorKey Key { get; set; }
-		public ColorType Type { get; set; }
+		public FactorType Type { get; set; }
 		public int Factor { get; set; }
 		public byte Opacity { get; set; }
 
-		public ColorPath(ColorKey key, ColorType type = ColorType.Color, int factor = 0, byte opacity = 255)
+		public ColorPath(ColorKey key, FactorType type = FactorType.Color, int factor = 0, byte opacity = 255)
 		{
 			if (!Colors.ContainsKey(key))
 				throw new KeyNotFoundException(nameof(key));
@@ -50,12 +51,57 @@ namespace AE.Dal
 			return GetColor(Opacity, color.R, color.G, color.B, Type, Factor);
 		}
 
-		public static Color GetColor(byte a, byte r, byte g, byte b, ColorType type, int factor)
+        /// <summary>
+        /// Get color from HEX and change it with factor 
+        /// </summary>
+        /// <param name="hex"></param>
+        /// <param name="factorType">Color = ignore factor</param>
+        /// <param name="factor">[0..10]</param>
+        /// <returns></returns>
+        /// <exception cref="InvalidCastException"></exception>
+        public static Color GetColor(string hex, FactorType factorType = FactorType.Color, int factor = 0)
+		{
+            hex = hex.TrimStart('#');
+
+            if (hex.Length == 6)
+                return GetColor(
+					255,
+                    byte.Parse(hex.Substring(0, 2), NumberStyles.HexNumber),
+                    byte.Parse(hex.Substring(2, 2), NumberStyles.HexNumber),
+                    byte.Parse(hex.Substring(4, 2), NumberStyles.HexNumber),
+					factorType,
+					factor
+				);
+            else if (hex.Length == 8)
+                return GetColor(
+                    byte.Parse(hex.Substring(0, 2), NumberStyles.HexNumber),
+                    byte.Parse(hex.Substring(2, 2), NumberStyles.HexNumber),
+                    byte.Parse(hex.Substring(4, 2), NumberStyles.HexNumber),
+                    byte.Parse(hex.Substring(6, 2), NumberStyles.HexNumber),
+                    factorType,
+                    factor
+                );
+
+			throw new InvalidCastException($"{hex} is not a valid HEX format!");
+        }
+
+		/// <summary>
+		/// Get color from ARGB and change it with factor 
+		/// </summary>
+		/// <param name="a"></param>
+		/// <param name="r"></param>
+		/// <param name="g"></param>
+		/// <param name="b"></param>
+		/// <param name="factorType">Color = ignore factor</param>
+		/// <param name="factor">[0..10]</param>
+		/// <returns></returns>
+		/// <exception cref="ArgumentOutOfRangeException"></exception>
+		public static Color GetColor(byte a, byte r, byte g, byte b, FactorType factorType = FactorType.Color, int factor = 0)
 		{
 			if (factor < 0 || factor > 10)
 				throw new ArgumentOutOfRangeException(nameof(factor));
 
-			if (type == ColorType.Shade)
+			if (factorType == FactorType.Shade)
 			{
 				var f = (10 - factor) / 10.0;
 
@@ -63,7 +109,7 @@ namespace AE.Dal
 				g = (byte)Math.Round(g * f);
 				b = (byte)Math.Round(b * f);
 			}
-			else if (type == ColorType.Tint)
+			else if (factorType == FactorType.Tint)
 			{
 				var f = factor / 10.0;
 

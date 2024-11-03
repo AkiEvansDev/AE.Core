@@ -9,5 +9,7 @@ public class AnyTest
 	public void Test()
 	{
 		var result = Keys.A.GetDescriptions<Keys>().ToList();
+
+		var c = ColorPath.GetColor("#880088", FactorType.Tint, 2);
     }
 }
