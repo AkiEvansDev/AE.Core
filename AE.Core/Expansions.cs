@@ -5,8 +5,10 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-
+using System.Text;
+using System.Text.Json;
 using AE.Core.Serializer;
+using JsonSerializer = AE.Core.Serializer.JsonSerializer;
 
 namespace AE.Core
 {
@@ -306,16 +308,36 @@ namespace AE.Core
                 .Where(e => !string.IsNullOrWhiteSpace(e));
         }
 
-		#endregion
-		#region Enum
+		/// <summary>
+		/// Convert string to base64
+		/// </summary>
+		/// <param name="data"></param>
+		/// <returns></returns>
+        public static string ToBase64(this string data)
+        {
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(data));
+        }
 
 		/// <summary>
-		/// Get enum name
+		/// Get string from base64
 		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="enum"></param>
+		/// <param name="data"></param>
 		/// <returns></returns>
-		public static string GetName(this Enum @enum)
+        public static string FromBase64(this string data)
+        {
+            return Encoding.UTF8.GetString(Convert.FromBase64String(data));
+        }
+
+        #endregion
+        #region Enum
+
+        /// <summary>
+        /// Get enum name
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="enum"></param>
+        /// <returns></returns>
+        public static string GetName(this Enum @enum)
 		{
 			return Enum.GetName(@enum.GetType(), @enum);
 		}
@@ -336,7 +358,8 @@ namespace AE.Core
         /// <typeparam name="T"></typeparam>
         /// <param name="enum"></param>
         /// <returns></returns>
-        public static IEnumerable<T> GetValues<T>(this Enum @enum) where T : Enum
+        public static IEnumerable<T> GetValues<T>(this Enum @enum) 
+			where T : Enum
         {
             return Enum.GetValues(@enum.GetType()).Cast<T>();
         }
@@ -356,7 +379,8 @@ namespace AE.Core
         /// </summary>
         /// <param name="enum"></param>
         /// <returns></returns>
-        public static IEnumerable<(T Value, string Description)> GetDescriptions<T>(this Enum @enum) where T : Enum
+        public static IEnumerable<(T Value, string Description)> GetDescriptions<T>(this Enum @enum) 
+			where T : Enum
         {
 			foreach (T value in @enum.GetValues<T>())
 				yield return (value, value.GetAttribute<DescriptionAttribute>().Description);
@@ -423,7 +447,8 @@ namespace AE.Core
 		/// <typeparam name="T"></typeparam>
 		/// <param name="source"></param>
 		/// <param name="item"></param>
-		public static void InsertSorted<T>(this IList source, T item) where T : IComparable<T>
+		public static void InsertSorted<T>(this IList source, T item) 
+			where T : IComparable<T>
 		{
 			var index = source.OfType<T>().Count(i => i.CompareTo(item) < 0);
 			source.Insert(index, item);
@@ -435,61 +460,92 @@ namespace AE.Core
 		/// <typeparam name="T"></typeparam>
 		/// <param name="source"></param>
 		/// <param name="item"></param>
-		public static void InsertSortedDescending<T>(this IList source, T item) where T : IComparable<T>
+		public static void InsertSortedDescending<T>(this IList source, T item) 
+			where T : IComparable<T>
 		{
 			var index = source.OfType<T>().Count(i => i.CompareTo(item) > 0);
 			source.Insert(index, item);
 		}
 
-		#endregion
-		#region Serializer
+        #endregion
+        #region Serializer
 
-		/// <summary>
-		/// Serialize object
-		/// </summary>
-		/// <param name="obj"></param>
-		/// <returns></returns>
-		public static string Serialize(this object obj)
+        /// <summary>
+        /// Serialize object
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="useBase64"></param>
+        /// <returns></returns>
+        public static string Serialize(this object obj, bool useBase64 = true)
 		{
 			var serializer = new AESerializer();
-			return serializer.Serialize(obj);
+			return serializer.Serialize(obj, useBase64);
 		}
 
-		/// <summary>
-		/// Serialize object without reference
-		/// </summary>
-		/// <param name="obj"></param>
-		/// <returns></returns>
-		public static string SerializeCopy(this object obj)
+        /// <summary>
+        /// Serialize object without reference
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="useBase64"></param>
+        /// <returns></returns>
+        public static string SerializeCopy(this object obj, bool useBase64 = true)
 		{
 			var serializer = new AESerializer();
-			return serializer.SerializeCopy(obj);
-		}
+			return serializer.SerializeCopy(obj, useBase64);
+        }
 
-		/// <summary>
-		/// Deserialize string
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="data"></param>
-		/// <returns></returns>
-		public static T Deserialize<T>(this string data) where T : class
+        /// <summary>
+        /// Deserialize string
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="data"></param>
+        /// <param name="useBase64"></param>
+        /// <returns></returns>
+        public static object Deserialize(this string data, bool useBase64 = true)
+        {
+            var serializer = new AESerializer();
+            return serializer.Deserialize(data, useBase64);
+        }
+
+        /// <summary>
+        /// Deserialize string
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="data"></param>
+        /// <param name="useBase64"></param>
+        /// <returns></returns>
+        public static T Deserialize<T>(this string data, bool useBase64 = true) 
+			where T : class
 		{
 			var serializer = new AESerializer();
-			return serializer.Deserialize<T>(data);
+			return serializer.Deserialize<T>(data, useBase64);
 		}
 
-		/// <summary>
-		/// Deserialize string
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="data"></param>
-		/// <returns></returns>
-		public static object Deserialize(this string data)
-		{
-			var serializer = new AESerializer();
-			return serializer.Deserialize(data);
-		}
+        #endregion
+        #region JSON
 
-		#endregion
-	}
+        /// <summary>
+        /// Serialize object to json
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static string SerializeJson(this object obj, JsonSerializerOptions options = null)
+        {
+            return JsonSerializer.Serialize(obj, options);
+        }
+
+        /// <summary>
+        /// Deserialize json string
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static T DeserializeJson<T>(this string data, JsonSerializerOptions options = null)
+            where T : class
+        {
+            return JsonSerializer.Deserialize<T>(data, options);
+        }
+
+        #endregion
+    }
 }

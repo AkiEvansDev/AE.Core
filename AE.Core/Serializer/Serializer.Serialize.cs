@@ -11,27 +11,29 @@ namespace AE.Core.Serializer
 {
 	public partial class AESerializer : IDisposable
 	{
-		/// <summary>
-		/// Serialize object
-		/// </summary>
-		/// <param name="obj"></param>
-		/// <returns></returns>
-		public string Serialize(object obj)
+        /// <summary>
+        /// Serialize object
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="useBase64"></param>
+        /// <returns></returns>
+        public string Serialize(object obj, bool useBase64 = true)
 		{
-			return Serialize(obj, false);
+			return Serialize(obj, useBase64, false);
 		}
 
-		/// <summary>
-		/// Serialize object without reference
-		/// </summary>
-		/// <param name="obj"></param>
-		/// <returns></returns>
-		public string SerializeCopy(object obj)
+        /// <summary>
+        /// Serialize object without reference
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="useBase64"></param>
+        /// <returns></returns>
+        public string SerializeCopy(object obj, bool useBase64 = true)
 		{
-			return Serialize(obj, true);
+			return Serialize(obj, useBase64, true);
 		}
 
-		private string Serialize(object obj, bool ignoreReference)
+		private string Serialize(object obj, bool useBase64 = true, bool ignoreReference = false)
 		{
 			Init();
 
@@ -41,7 +43,12 @@ namespace AE.Core.Serializer
 			SerializeObj(obj);
 			AfterSerialize();
 
-			return Builder.ToString();
+			var result = Builder.ToString();
+
+			if (useBase64)
+				result = result.ToBase64();
+
+            return result;
 		}
 
 		private void BeforeSerialize(object obj)

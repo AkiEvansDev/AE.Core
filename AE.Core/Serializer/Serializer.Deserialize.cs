@@ -11,15 +11,17 @@ namespace AE.Core.Serializer
 {
 	public partial class AESerializer
 	{
-		/// <summary>
-		/// Deserialize object from string
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="data"></param>
-		/// <returns></returns>
-		public T Deserialize<T>(string data)
+        /// <summary>
+        /// Deserialize object from string
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="data"></param>
+        /// <param name="useBase64"></param>
+        /// <returns></returns>
+        public T Deserialize<T>(string data, bool useBase64 = true)
+			where T : class
 		{
-			var result = Deserialize(data);
+			var result = Deserialize(data, useBase64);
 
 			if (result == null)
 				return (T)typeof(T).ToObject();
@@ -27,13 +29,17 @@ namespace AE.Core.Serializer
 			return (T)result;
 		}
 
-		/// <summary>
-		/// Deserialize object from string
-		/// </summary>
-		/// <param name="data"></param>
-		/// <returns></returns>
-		public object Deserialize(string data)
+        /// <summary>
+        /// Deserialize object from string
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="useBase64"></param>
+        /// <returns></returns>
+        public object Deserialize(string data, bool useBase64 = true)
 		{
+			if (useBase64)
+				data = data.FromBase64();
+
 			Init();
 
 			if (data.Length < 2)

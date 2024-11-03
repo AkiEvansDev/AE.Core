@@ -104,7 +104,7 @@ public class AESerializerTest
 		var data = serializer.Serialize(obj);
 		var obj2 = serializer.Deserialize<TestSerializer>(data);
 
-		if (obj2.V == false)
+        if (obj2.V == false)
 			Assert.Fail();
 
 		if (obj2.V1 != 1)
