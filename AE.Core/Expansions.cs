@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -31,7 +32,7 @@ namespace AE.Core
 		/// <param name="type"></param>
 		/// <param name="params"></param>
 		/// <returns></returns>
-		public static object Object(this Type type, object[] @params = null)
+		public static object ToObject(this Type type, object[] @params = null)
 		{
 			return SerializerHelper.GetObject(type, @params);
 		}
@@ -43,7 +44,7 @@ namespace AE.Core
 		/// <param name="type"></param>
 		/// <param name="params"></param>
 		/// <returns></returns>
-		public static T Object<T>(this Type type, object[] @params = null)
+		public static T ToObject<T>(this Type type, object[] @params = null)
 		{
 			return (T)SerializerHelper.GetObject(type, @params);
 		}
@@ -56,10 +57,9 @@ namespace AE.Core
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		public static int Int(this string value)
+		public static int ToInt(this string value)
 		{
 			return int.Parse(value);
-
 		}
 
 		/// <summary>
@@ -78,7 +78,7 @@ namespace AE.Core
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		public static long Long(this string value)
+		public static long ToLong(this string value)
 		{
 			return long.Parse(value);
 		}
@@ -99,7 +99,7 @@ namespace AE.Core
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		public static float Single(this string value)
+		public static float ToSingle(this string value)
 		{
 			return float.Parse(value.Replace(',', '.'), NumberFormat);
 		}
@@ -120,7 +120,7 @@ namespace AE.Core
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		public static double Double(this string value)
+		public static double ToDouble(this string value)
 		{
 			return double.Parse(value.Replace(',', '.'), NumberFormat);
 		}
@@ -141,7 +141,7 @@ namespace AE.Core
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		public static decimal Decimal(this string value)
+		public static decimal ToDecimal(this string value)
 		{
 			return decimal.Parse(value.Replace(',', '.'), NumberFormat);
 		}
@@ -164,7 +164,7 @@ namespace AE.Core
 		/// <param name="format"></param>
 		/// <param name="provider"></param>
 		/// <returns></returns>
-		public static DateTime Date(this string value, string format = null, IFormatProvider provider = null)
+		public static DateTime ToDate(this string value, string format = null, IFormatProvider provider = null)
 		{
 			if (string.IsNullOrEmpty(format))
 				return DateTime.Parse(value);
@@ -179,46 +179,59 @@ namespace AE.Core
 		/// <param name="format"></param>
 		/// <param name="provider"></param>
 		/// <returns></returns>
-		public static TimeSpan Time(this string value, string format = null, IFormatProvider provider = null)
+		public static TimeSpan ToTime(this string value, string format = null, IFormatProvider provider = null)
 		{
 			if (string.IsNullOrEmpty(format))
 				return TimeSpan.Parse(value);
 
 			return TimeSpan.ParseExact(value, format, provider ?? CultureInfo.InvariantCulture);
-		}
+        }
 
-		/// <summary>
-		/// Equals string with StringComparison.OrdinalIgnoreCase
-		/// </summary>
-		/// <param name="value1"></param>
-		/// <param name="value2"></param>
-		/// <returns></returns>
-		public static bool EqualsIgnoreCase(this string value1, string value2)
+        /// <summary>
+        /// Get type by string name
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static Type ToType(this string value)
+        {
+            return SerializerHelper.GetType(value);
+        }
+
+        /// <summary>
+        /// Equals string with StringComparison.OrdinalIgnoreCase
+        /// </summary>
+        /// <param name="value1"></param>
+        /// <param name="value2"></param>
+        /// <returns></returns>
+        public static bool EqualsIgnoreCase(this string value1, string value2)
 		{
 			return string.Equals(value1, value2, StringComparison.OrdinalIgnoreCase);
 		}
 
-		/// <summary>
-		/// Search any word of value2 in string with StringComparison.OrdinalIgnoreCase
-		/// </summary>
-		/// <param name="value1"></param>
-		/// <param name="value2"></param>
-		/// <returns></returns>
-		public static bool Search(this string value1, string value2)
+        /// <summary>
+        /// Search any word of value2 (split by space) in string with StringComparison.OrdinalIgnoreCase
+        /// </summary>
+        /// <param name="value1"></param>
+        /// <param name="value2"></param>
+        /// <returns></returns>
+        public static bool Search(this string value1, string value2)
 		{
 			var parts = value2.Split(' ');
 			return parts.Any(p => value1.Contains(p, StringComparison.OrdinalIgnoreCase));
 		}
 
-		/// <summary>
-		/// Get type by string name
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		public static Type Type(this string value)
-		{
-			return SerializerHelper.GetType(value);
-		}
+        /// <summary>
+        /// Search any word of value2 (split by separator) in string with StringComparison.OrdinalIgnoreCase
+        /// </summary>
+        /// <param name="value1"></param>
+        /// <param name="value2"></param>
+        /// <param name="separator"></param>
+        /// <returns></returns>
+        public static bool Search(this string value1, string value2, params char[] separator)
+        {
+            var parts = value2.Split(separator);
+            return parts.Any(p => value1.Contains(p, StringComparison.OrdinalIgnoreCase));
+        }
 
 		/// <summary>
 		/// Upper first char in string
@@ -279,29 +292,22 @@ namespace AE.Core
 		public static bool AnyFrom(this string value, IEnumerable<string> values)
 			=> values.Any(v => v.EqualsIgnoreCase(value));
 
+		/// <summary>
+		/// Return only value string without space after split
+		/// </summary>
+		/// <param name="data"></param>
+		/// <param name="separator"></param>
+		/// <returns></returns>
+		public static IEnumerable<string> SmartSplit(this string data, string separator)
+        {
+            return data
+                .Split(separator)
+                .Select(e => e.Trim())
+                .Where(e => !string.IsNullOrWhiteSpace(e));
+        }
+
 		#endregion
 		#region Enum
-
-		/// <summary>
-		/// Get all enum values
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="enum"></param>
-		/// <returns></returns>
-		public static IEnumerable<T> Values<T>(this Enum @enum) where T : Enum
-		{
-			return @enum.Values().Cast<T>();
-		}
-
-		/// <summary>
-		/// Get all enum values
-		/// </summary>
-		/// <param name="enum"></param>
-		/// <returns></returns>
-		public static Array Values(this Enum @enum)
-		{
-			return Enum.GetValues(@enum.GetType());
-		}
 
 		/// <summary>
 		/// Get enum name
@@ -309,7 +315,7 @@ namespace AE.Core
 		/// <typeparam name="T"></typeparam>
 		/// <param name="enum"></param>
 		/// <returns></returns>
-		public static string Name(this Enum @enum)
+		public static string GetName(this Enum @enum)
 		{
 			return Enum.GetName(@enum.GetType(), @enum);
 		}
@@ -319,9 +325,31 @@ namespace AE.Core
 		/// </summary>
 		/// <param name="enum"></param>
 		/// <returns></returns>
-		public static string[] Names(this Enum @enum)
+		public static string[] GetNames(this Enum @enum)
 		{
 			return Enum.GetNames(@enum.GetType());
+        }
+
+        /// <summary>
+        /// Get all enum values
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="enum"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> GetValues<T>(this Enum @enum) where T : Enum
+        {
+            return Enum.GetValues(@enum.GetType()).Cast<T>();
+        }
+
+        /// <summary>
+        /// Get enum value and description from DescriptionAttribute
+        /// </summary>
+        /// <param name="enum"></param>
+        /// <returns></returns>
+        public static IEnumerable<(T Value, string Description)> GetDescriptions<T>(this Enum @enum) where T : Enum
+        {
+			foreach (T value in @enum.GetValues<T>())
+				yield return (value, value.GetAttribute<DescriptionAttribute>().Description);
 		}
 
 		/// <summary>
@@ -330,12 +358,12 @@ namespace AE.Core
 		/// <typeparam name="TAttribute"></typeparam>
 		/// <param name="enum"></param>
 		/// <returns></returns>
-		public static TAttribute Attribute<TAttribute>(this Enum @enum)
+		public static TAttribute GetAttribute<TAttribute>(this Enum @enum)
 			where TAttribute : Attribute
 		{
 			return @enum
 				.GetType()
-				.GetMember(@enum.Name())
+				.GetMember(@enum.GetName())
 				.First()
 				.GetCustomAttribute<TAttribute>();
 		}

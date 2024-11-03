@@ -22,7 +22,7 @@ namespace AE.Core.Serializer
 			var result = Deserialize(data);
 
 			if (result == null)
-				return (T)typeof(T).Object();
+				return (T)typeof(T).ToObject();
 
 			return (T)result;
 		}
@@ -56,7 +56,7 @@ namespace AE.Core.Serializer
 					data = data[(referencesData.Length + start)..];
 
 					var type = GetSaveType(data[1..data.IndexOf(')')]);
-					var obj = type.Object();
+					var obj = type.ToObject();
 
 					SetReferenceObject(0, obj);
 
@@ -115,7 +115,7 @@ namespace AE.Core.Serializer
 				return null;
 
 			var type = GetSaveType(data[1..data.IndexOf(')')]);
-			var obj = type.Object();
+			var obj = type.ToObject();
 
 			if (id >= 0)
 				SetReferenceObject(id, obj);
@@ -156,7 +156,7 @@ namespace AE.Core.Serializer
 				data = data.Remove(0, STRING_T.Length);
 
 				var lenString = data[..data.IndexOf(']')];
-				var len = lenString.Int();
+				var len = lenString.ToInt();
 
 				data = data.Substring(lenString.Length + 1, len);
 				type = typeof(string);
@@ -172,7 +172,7 @@ namespace AE.Core.Serializer
 				throw new ArgumentNullException();
 
 			if (data.IsNull())
-				return Convert.ChangeType(null, type) ?? type.Object();
+				return Convert.ChangeType(null, type) ?? type.ToObject();
 
 			if (type == typeof(string))
 				return data;
@@ -180,7 +180,7 @@ namespace AE.Core.Serializer
 			if (data.StartsWith("ref"))
 				return GetReferenceObject(data[3..]);
 
-			var value = type.Object();
+			var value = type.ToObject();
 
 			if (value is IDictionary dictionary)
 			{
@@ -195,7 +195,7 @@ namespace AE.Core.Serializer
 					if (item.StartsWith(STRING_T))
 					{
 						var lenString = item[STRING_T.Length..item.IndexOf(']')];
-						var len = lenString.Int();
+						var len = lenString.ToInt();
 
 						k = item[..(len + $"{STRING_T}{len}]".Length)];
 						v = item[(k.Length + 1)..];
@@ -237,26 +237,26 @@ namespace AE.Core.Serializer
 					var observType = typeof(ObservableCollection<>).MakeGenericType(itemType);
 
 					if (type == observType)
-						return observType.Object(new object[] { castedItems });
+						return observType.ToObject(new object[] { castedItems });
 
 					return castedItems;
 				}
 			}
 
 			if (type == typeof(float))
-				return data.Single();
+				return data.ToSingle();
 
 			if (type == typeof(double))
-				return data.Double();
+				return data.ToDouble();
 
 			if (type == typeof(decimal))
-				return data.Decimal();
+				return data.ToDecimal();
 
 			if (type == typeof(DateTime))
-				data.Date(Expansions.DATETIME_FORMAT);
+				data.ToDate(Expansions.DATETIME_FORMAT);
 
 			if (type == typeof(TimeSpan))
-				return data.Time(Expansions.TIMESPAN_FORMAT);
+				return data.ToTime(Expansions.TIMESPAN_FORMAT);
 
 			if (type.IsEnum)
 				return Enum.Parse(value.GetType(), data);
@@ -300,7 +300,7 @@ namespace AE.Core.Serializer
 						var str = data[i..];
 						var lenString = str[..str.IndexOf(']')];
 
-						i += lenString.Length + 1 + lenString.Int();
+						i += lenString.Length + 1 + lenString.ToInt();
 
 						c = data[i];
 					}

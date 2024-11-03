@@ -36,7 +36,7 @@ namespace AE.Core.Serializer
 			if (id.TryInt(out int index) && index < TypeTable?.Count)
 				id = TypeTable[index];
 
-			return id.Type();
+			return id.ToType();
 		}
 
 		private int SetSaveTypeId(object obj)
