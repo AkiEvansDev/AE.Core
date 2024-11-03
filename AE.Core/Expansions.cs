@@ -265,13 +265,24 @@ namespace AE.Core
 			return string.IsNullOrEmpty(value);
 		}
 
-		/// <summary>
-		/// Unique string for collections [{string}#{index}]
-		/// </summary>
-		/// <param name="value"></param>
-		/// <param name="values"></param>
-		/// <returns></returns>
-		public static string UniqueFrom(this string value, IEnumerable<string> values)
+        /// <summary>
+        /// Return value2 if value1 is null or value1
+        /// </summary>
+        /// <param name="value1"></param>
+        /// <param name="value2"></param>
+        /// <returns></returns>
+        public static string Empty(this string value1, string value2)
+        {
+            return string.IsNullOrEmpty(value1) ? value2 : value1;
+        }
+
+        /// <summary>
+        /// Unique string for collections [{string}#{index}]
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public static string UniqueFrom(this string value, IEnumerable<string> values)
 		{
 			var index = 1;
 			var newValue = value;

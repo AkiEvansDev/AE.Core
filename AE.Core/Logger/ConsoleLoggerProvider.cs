@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AE.Dal;
+using System;
 using System.Collections.Generic;
 
 namespace AE.Core.Log
@@ -18,16 +19,19 @@ namespace AE.Core.Log
 		}
 
 		/// <inheritdoc/>
-		public void Log(string message)
+		public void Log(LogLevel level, string message)
 		{
 			lock (typeof(Console))
 			{
 				var save = Console.ForegroundColor;
 
-				if (message.Contains("[ERROR]"))
+				if (level == LogLevel.Error)
 					Console.ForegroundColor = ConsoleColor.Red;
 
-				Console.WriteLine(message);
+                if (level == LogLevel.Warning)
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+
+                Console.WriteLine(message);
 
 				Console.ForegroundColor = save;
 			}

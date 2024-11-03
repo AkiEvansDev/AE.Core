@@ -71,10 +71,10 @@ namespace AE.Core.Log
 				}
 			}
 
-			Log($"[{DateTime.Now:hh:mm:ss}]{(!Tag.IsNull() ? $"[{Tag.ToUpper()}]" : "")}[{level.GetDescription()}] {message}", ignoreEvent);
+			Log(level, $"[{DateTime.Now:hh:mm:ss}]{(!Tag.IsNull() ? $"[{Tag.ToUpper()}]" : "")}[{level.GetDescription()}] {message}", ignoreEvent);
 		}
 
-		private void Log(string message, bool ignoreEvent)
+		private void Log(LogLevel level, string message, bool ignoreEvent)
 		{
 			lock (this)
 			{
@@ -82,7 +82,7 @@ namespace AE.Core.Log
 					OnLog?.Invoke(message);
 
 				foreach (var provider in Providers)
-					provider.Log(message);
+					provider.Log(level, message);
 			}
 		}
 	}

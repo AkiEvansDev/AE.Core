@@ -1,4 +1,6 @@
-﻿namespace AE.Core.Log
+﻿using AE.Dal;
+
+namespace AE.Core.Log
 {
 	/// <summary>
 	/// Logger provider interface
@@ -12,10 +14,11 @@
 		/// <returns></returns>
 		ILogger GetLogger(string tag = null);
 
-		/// <summary>
-		/// Log formatted message
-		/// </summary>
-		/// <param name="message"></param>
-		void Log(string message);
+        /// <summary>
+        /// Log formatted message
+        /// </summary>
+        /// <param name="level"></param>
+        /// <param name="message"></param>
+        void Log(LogLevel level, string message);
 	}
 }
