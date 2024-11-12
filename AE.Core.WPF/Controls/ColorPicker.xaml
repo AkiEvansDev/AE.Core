@@ -1,0 +1,167 @@
+﻿<Grid 
+    x:Class="AE.Core.WPF.Controls.ColorPicker"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:local="clr-namespace:AE.Core.WPF.Controls"
+    mc:Ignorable="d" 
+    d:DesignHeight="305" d:DesignWidth="355">
+    <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="2*"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+    <Canvas
+        Margin="-0.5">
+        <Canvas.Background>
+            <SolidColorBrush x:Name="BoxColor" Color="White"/>
+        </Canvas.Background>
+    </Canvas>
+    <Canvas
+        Grid.Column="1">
+        <Canvas.Background>
+            <LinearGradientBrush StartPoint="0 0.5" EndPoint="1 0.5">
+                <GradientStop Offset="0" Color="White"  />
+                <GradientStop x:Name="ColorStop" Offset="1" Color="Red" />
+            </LinearGradientBrush>
+        </Canvas.Background>
+    </Canvas>
+    <Canvas
+        Grid.Column="1"
+        Margin="-0.5">
+        <Canvas.Background>
+            <LinearGradientBrush StartPoint="0.5 0" EndPoint="0.5 1">
+                <GradientStop Offset="0" Color="Transparent" />
+                <GradientStop Offset="1" Color="Black" />
+            </LinearGradientBrush>
+        </Canvas.Background>
+    </Canvas>
+    <Canvas
+        x:Name="Box"
+        Grid.Column="1"
+        Background="Transparent"
+        MouseDown="OnBoxMouseDown"
+        MouseMove="OnBoxMouseMove"
+        MouseUp="OnBoxMouseUp">
+        <Border
+            x:Name="BoxCursor"
+            BorderThickness="4"
+            Width="20"
+            Height="20"
+            CornerRadius="10"
+            Canvas.Left="0"
+            Margin="-10 -10 0 0"
+            MouseDown="OnBoxMouseDown">
+            <Border.Background>
+                <SolidColorBrush Color="{Binding ElementName=BoxColor, Path=Color}"/>
+            </Border.Background>
+            <Border.BorderBrush>
+                <RadialGradientBrush>
+                    <GradientStop Offset="0.8" Color="Black" />
+                    <GradientStop Offset="1" Color="White" />
+                </RadialGradientBrush>
+            </Border.BorderBrush>
+        </Border>
+    </Canvas>
+    <Border
+        Grid.ColumnSpan="2"
+        Grid.Row="1"
+        Height="12"
+        CornerRadius="6"
+        VerticalAlignment="Center"
+        Margin="0 10 0 0">
+        <Border.Background>
+            <LinearGradientBrush StartPoint="0 0" EndPoint="1 1">
+                <GradientStop Offset="0" Color="#FF0000" />
+                <GradientStop Offset="0.1666" Color="#FFFF00" />
+                <GradientStop Offset="0.3333" Color="#00FF00" />
+                <GradientStop Offset="0.5" Color="#00FFFF" />
+                <GradientStop Offset="0.6666" Color="#0000FF" />
+                <GradientStop Offset="0.8333" Color="#FF00FF" />
+                <GradientStop Offset="1" Color="#FF0000" />
+            </LinearGradientBrush>
+        </Border.Background>
+    </Border>
+    <Canvas
+        x:Name="Slider"
+        Grid.ColumnSpan="2"
+        Grid.Row="1"
+        Height="34"
+        Background="Transparent"
+        MouseDown="OnSliderMouseDown"
+        MouseMove="OnSliderMouseMove"
+        MouseUp="OnSliderMouseUp">
+        <Border
+            x:Name="SliderCursor"
+            BorderThickness="4"
+            Width="20"
+            Height="20"
+            CornerRadius="10"
+            Canvas.Left="0"
+            Margin="-10 12 0 0"
+            MouseDown="OnSliderMouseDown">
+            <Border.Background>
+                <SolidColorBrush Color="{Binding ElementName=ColorStop, Path=Color}"/>
+            </Border.Background>
+            <Border.BorderBrush>
+                <RadialGradientBrush>
+                    <GradientStop Offset="0.8" Color="Black" />
+                    <GradientStop Offset="1" Color="White" />
+                </RadialGradientBrush>
+            </Border.BorderBrush>
+        </Border>
+    </Canvas>
+    <Border
+        x:Name="ASliderBG"
+        Grid.ColumnSpan="2"
+        Grid.Row="2"
+        BorderThickness="0.5"
+        Height="13"
+        CornerRadius="6.5"
+        VerticalAlignment="Center"
+        Margin="0 -2 0 0">
+        <Border.BorderBrush>
+            <SolidColorBrush Color="{Binding ElementName=BoxColor, Path=Color}"/>
+        </Border.BorderBrush>
+        <Border.Background>
+            <LinearGradientBrush StartPoint="0 0" EndPoint="1 1">
+                <GradientStop Offset="0" Color="Transparent" />
+                <GradientStop Offset="1" Color="{Binding ElementName=BoxColor, Path=Color}" />
+            </LinearGradientBrush>
+        </Border.Background>
+    </Border>
+    <Canvas
+        x:Name="ASlider"
+        Grid.ColumnSpan="2"
+        Grid.Row="2"
+        Height="22"
+        Background="Transparent"
+        MouseDown="OnASliderMouseDown"
+        MouseMove="OnASliderMouseMove"
+        MouseUp="OnASliderMouseUp">
+        <Border
+            x:Name="ASliderCursor"
+            BorderThickness="4"
+            Width="20"
+            Height="20"
+            CornerRadius="10"
+            Canvas.Left="0"
+            Margin="-10 0 0 0"
+            MouseDown="OnASliderMouseDown">
+            <Border.Background>
+                <SolidColorBrush x:Name="AColor" Color="{Binding ElementName=BoxColor, Path=Color}"/>
+            </Border.Background>
+            <Border.BorderBrush>
+                <RadialGradientBrush>
+                    <GradientStop Offset="0.8" Color="Black" />
+                    <GradientStop Offset="1" Color="White" />
+                </RadialGradientBrush>
+            </Border.BorderBrush>
+        </Border>
+    </Canvas>
+</Grid>

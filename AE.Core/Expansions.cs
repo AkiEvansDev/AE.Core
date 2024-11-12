@@ -55,6 +55,48 @@ namespace AE.Core
         #region String
 
         /// <summary>
+        /// Convert string to bool
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static bool ToBool(this string value)
+        {
+            return bool.Parse(value);
+        }
+
+        /// <summary>
+        /// Try convert string to bool
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public static bool TryInt(this string value, out bool result)
+        {
+            return bool.TryParse(value, out result);
+        }
+
+        /// <summary>
+        /// Convert string to byte
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static byte ToByte(this string value)
+        {
+            return byte.Parse(value);
+        }
+
+        /// <summary>
+        /// Try convert string to byte
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public static bool TryInt(this string value, out byte result)
+        {
+            return byte.TryParse(value, out result);
+        }
+
+        /// <summary>
         /// Convert string to int
         /// </summary>
         /// <param name="value"></param>
