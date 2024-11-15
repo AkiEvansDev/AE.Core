@@ -5,8 +5,12 @@ using System.Windows.Media;
 
 namespace AE.Core.WPF.Controls
 {
+    public delegate void ColorChangedEventHandler(object sender, Color color);
+
     public partial class ColorPicker : Grid
     {
+        public event ColorChangedEventHandler ColorChanged;
+
         public static readonly DependencyProperty ColorProperty = DependencyProperty.Register(
             nameof(Color), typeof(Color), typeof(ColorPicker), new FrameworkPropertyMetadata(defaultValue: Colors.White, ColorPropertyChange));
 
@@ -148,6 +152,8 @@ namespace AE.Core.WPF.Controls
             Canvas.SetLeft(color.ASliderCursor, color.A * color.ASlider.ActualWidth / 255);
 
             color.IsChangeFromMe = false;
+
+            color.ColorChanged?.Invoke(color, color.Color);
         }
 
         private static void RGBPropertyChange(DependencyObject source, DependencyPropertyChangedEventArgs e)
@@ -177,6 +183,8 @@ namespace AE.Core.WPF.Controls
             Canvas.SetTop(color.BoxCursor, color.Box.ActualHeight - color.Box.ActualHeight * v);
 
             color.IsChangeFromMe = false;
+
+            color.ColorChanged?.Invoke(color, color.Color);
         }
 
         private static void HSVPropertyChange(DependencyObject source, DependencyPropertyChangedEventArgs e)
@@ -212,6 +220,8 @@ namespace AE.Core.WPF.Controls
             }
 
             color.IsChangeFromMe = false;
+
+            color.ColorChanged?.Invoke(color, color.Color);
         }
 
         private static void ShowAlphaPropertyChange(DependencyObject source, DependencyPropertyChangedEventArgs e)
@@ -342,12 +352,6 @@ namespace AE.Core.WPF.Controls
                 x = ASlider.ActualWidth;
 
             A = (byte)Math.Round(255 * x / ASlider.ActualWidth);
-        }
-
-        private void UpdateColor()
-        {
-            BoxColor.Color = ColorExtensions.ColorFromHSV(H, S, V);
-            ColorStop.Color = ColorExtensions.ColorFromHSV(H, 1, 1);
         }
     }
 }

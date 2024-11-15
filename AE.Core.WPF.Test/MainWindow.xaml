@@ -10,7 +10,7 @@
         Title="MainWindow" Height="450" Width="800"
         Background="Gray">
     <Grid x:Name="Test">
-        <t:ColorPicker x:Name="cp" Width="400" Height="200" A="{Binding A}" R="{Binding R}" G="{Binding G}" B="{Binding B}" ShowAlpha="False"/>
+        <t:ColorPicker x:Name="cp" Width="400" Height="200" R="{Binding R}" G="{Binding G}" B="{Binding B}" ShowAlpha="True"/>
         <StackPanel HorizontalAlignment="Left" Orientation="Vertical">
             <StackPanel.Background>
                 <SolidColorBrush Color="{Binding ElementName=cp, Path=Color}"/>

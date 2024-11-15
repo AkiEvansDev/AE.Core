@@ -17,6 +17,7 @@
         <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
     <Canvas
+        x:Name="BoxColorSource"
         Margin="-0.5">
         <Canvas.Background>
             <SolidColorBrush x:Name="BoxColor" Color="White"/>
@@ -50,6 +51,7 @@
         MouseUp="OnBoxMouseUp">
         <Border
             x:Name="BoxCursor"
+            Background="{Binding ElementName=BoxColorSource, Path=Background}"
             BorderThickness="4"
             Width="20"
             Height="20"
@@ -57,9 +59,6 @@
             Canvas.Left="0"
             Margin="-10 -10 0 0"
             MouseDown="OnBoxMouseDown">
-            <Border.Background>
-                <SolidColorBrush Color="{Binding ElementName=BoxColor, Path=Color}"/>
-            </Border.Background>
             <Border.BorderBrush>
                 <RadialGradientBrush>
                     <GradientStop Offset="0.8" Color="Black" />
@@ -118,6 +117,7 @@
     </Canvas>
     <Border
         x:Name="ASliderBG"
+        BorderBrush="{Binding ElementName=BoxColorSource, Path=Background}"
         Grid.ColumnSpan="2"
         Grid.Row="2"
         BorderThickness="0.5"
@@ -125,9 +125,6 @@
         CornerRadius="6.5"
         VerticalAlignment="Center"
         Margin="0 -2 0 0">
-        <Border.BorderBrush>
-            <SolidColorBrush Color="{Binding ElementName=BoxColor, Path=Color}"/>
-        </Border.BorderBrush>
         <Border.Background>
             <LinearGradientBrush StartPoint="0 0" EndPoint="1 1">
                 <GradientStop Offset="0" Color="Transparent" />
@@ -154,7 +151,7 @@
             Margin="-10 0 0 0"
             MouseDown="OnASliderMouseDown">
             <Border.Background>
-                <SolidColorBrush x:Name="AColor" Color="{Binding ElementName=BoxColor, Path=Color}"/>
+                <SolidColorBrush x:Name="AColor" Color="{Binding ElementName=BoxColor, Path=Color}" Opacity="0"/>
             </Border.Background>
             <Border.BorderBrush>
                 <RadialGradientBrush>
