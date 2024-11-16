@@ -14,11 +14,11 @@ jobs:
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v1
     - name: Build
-      run: dotnet build -c Release
+      run: dotnet build AE.Core.Nuget.sln -c Release
     - name: Test
-      run: dotnet test -c Release --no-build
+      run: dotnet test AE.Core.Nuget.sln -c Release --no-build
     - name: Pack nugets
-      run: dotnet pack -c Release --no-build --output .
+      run: dotnet pack AE.Core.Nuget.sln -c Release --no-build --output .
     - name: Add github source
       run: dotnet nuget add source --username AkiEvansDev --password ${{ secrets.TOKEN_GITHUB }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/AkiEvansDev/index.json"
     - name: Push to Git
